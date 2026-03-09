@@ -1,4 +1,4 @@
-const CACHE_NAME = 'venneys-v2';
+const CACHE_NAME = 'venneys-v3';
 const ASSETS = ['/', '/index.html', '/data.js', '/app.js', '/style.css', '/manifest.json', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

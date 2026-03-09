@@ -51,17 +51,22 @@ function showConfigError() {
 }
 
 function listenToTables() {
-  db.collection('tables').onSnapshot(snap => {
-    snap.forEach(doc => { tableData[doc.id] = doc.data(); });
+  db.collection('_data').doc('tables').onSnapshot(doc => {
+    tableData = doc.exists ? doc.data() : {};
     renderTables();
     if (currentTableId && showScreen.current === 'table') renderOrders(currentTableId);
   });
 }
 
 function loadUsers() {
-  db.collection('users').onSnapshot(snap => {
-    usersData = {};
-    snap.forEach(doc => { usersData[doc.id] = { id: doc.id, ...doc.data() }; });
+  db.collection('_data').doc('users').onSnapshot(doc => {
+    if (doc.exists) {
+      usersData = {};
+      const raw = doc.data();
+      Object.keys(raw).forEach(uid => { usersData[uid] = { id: uid, ...raw[uid] }; });
+    } else {
+      usersData = {};
+    }
     renderUserList();
     if (showScreen.current === 'vault') renderVault();
   }, err => {
@@ -77,7 +82,33 @@ function loadUsers() {
   });
 }
 
-// ─── LIVE MENU SCRAPER ────────────────────────────────────────
+// ─── SINGLE-DOC WRITE HELPERS ────────────────────────────────
+// All table data lives in _data/tables, all user data in _data/users.
+// Each write updates only the relevant key using merge.
+
+async function saveTable(tId, data) {
+  await db.collection('_data').doc('tables').set({ [tId]: data }, { merge: true });
+}
+
+async function saveAllTables(allData) {
+  await db.collection('_data').doc('tables').set(allData);
+}
+
+function userForSave(uid) {
+  const u = { ...usersData[uid] };
+  delete u.id; // id is derived from the key, don't store it
+  return u;
+}
+
+async function saveUser(uid, data) {
+  await db.collection('_data').doc('users').set({ [uid]: data }, { merge: true });
+}
+
+async function deleteUser(uid) {
+  await db.collection('_data').doc('users').update({
+    [uid]: firebase.firestore.FieldValue.delete()
+  });
+}
 const MENU_URL = 'https://www.venneysatthegranby.co.uk/menus/';
 const CORS_PROXY = 'https://corsproxy.io/?';
 const MENU_CACHE_TTL = 30 * 60 * 1000;
@@ -329,7 +360,9 @@ async function savePinChange() {
   const p2 = document.getElementById('confirm-pin').value;
   if (!/^\d{4}$/.test(p1)) return toast('PIN must be 4 digits');
   if (p1 !== p2) return toast('PINs do not match');
-  await db.collection('users').doc(currentUser.id).update({ pin: p1 });
+  const userData = userForSave(currentUser.id);
+  userData.pin = p1;
+  await saveUser(currentUser.id, userData);
   currentUser.pin = p1;
   closeModal();
   toast('PIN updated!');
@@ -407,11 +440,11 @@ async function saveAllergens(tId, isOpening, skip) {
   const allergens = skip ? [] : Array.from(document.querySelectorAll('.allergen-check.checked')).map(el => el.dataset.allergen);
   const otherAllergen = skip ? '' : (document.getElementById('other-allergen')?.value || '');
   const existing = tableData[tId] || {};
-  await db.collection('tables').doc(tId).set({
+  await saveTable(tId, {
     ...existing, open: true, allergens, otherAllergen,
     openedAt: existing.openedAt || new Date().toISOString(),
     orders: existing.orders || []
-  }, { merge: true });
+  });
   closeModal();
   currentTableId = tId;
   goTo('table');
@@ -430,7 +463,7 @@ async function closeTable(tableId) {
 }
 
 async function confirmCloseTable(tableId) {
-  await db.collection('tables').doc(String(tableId)).set({ open:false, orders:[], allergens:[], otherAllergen:'' });
+  await saveTable(String(tableId), { open:false, orders:[], allergens:[], otherAllergen:'' });
   closeModal(); goTo('tables'); toast('Table closed');
 }
 
@@ -446,12 +479,14 @@ function showCloseAll() {
 }
 
 async function confirmCloseAll() {
-  const batch = db.batch();
+  const update = {};
   Object.keys(tableData).forEach(tId => {
     if (tableData[tId].open)
-      batch.set(db.collection('tables').doc(tId), { open:false, orders:[], allergens:[], otherAllergen:'' });
+      update[tId] = { open:false, orders:[], allergens:[], otherAllergen:'' };
   });
-  await batch.commit();
+  if (Object.keys(update).length) {
+    await db.collection('_data').doc('tables').set(update, { merge: true });
+  }
   closeModal(); toast('All tables closed');
 }
 
@@ -612,7 +647,7 @@ async function submitOrderBatch() {
   };
 
   const orders = [...(existing.orders||[]), orderGroup];
-  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  await saveTable(tId, { ...existing, orders });
   toast(`Order added: ${pendingOrderItems.length} item${pendingOrderItems.length>1?'s':''}`);
   closeOrderModal();
 }
@@ -921,7 +956,7 @@ async function saveExtraNote(groupId, itemIndex) {
     }
     return o;
   });
-  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  await saveTable(tId, { ...existing, orders });
   closeModal(); toast('Note added');
 }
 
@@ -936,7 +971,7 @@ async function deleteOrderItem(groupId, itemIndex) {
     }
     return o;
   }).filter(Boolean);
-  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  await saveTable(tId, { ...existing, orders });
   toast('Item removed');
 }
 
@@ -944,7 +979,7 @@ async function deleteOrderGroup(groupId) {
   const tId = currentTableId;
   const existing = tableData[tId] || {};
   const orders = (existing.orders||[]).filter(o => o.id !== groupId);
-  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  await saveTable(tId, { ...existing, orders });
   toast('Order removed');
 }
 
@@ -1054,14 +1089,17 @@ async function adminAddUser() {
   const name = document.getElementById('new-user-name')?.value?.trim();
   const role = document.getElementById('new-user-role')?.value?.trim() || 'Staff';
   if (!name) return toast('Enter a name');
-  await db.collection('users').doc(name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now()).set({ name, role, pin:'1234' });
+  const uid = name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  await saveUser(uid, { name, role, pin:'1234' });
   document.getElementById('new-user-name').value = '';
   document.getElementById('new-user-role').value = '';
   toast(`${name} added — PIN is 1234`);
 }
 
 async function adminResetPin(uid) {
-  await db.collection('users').doc(uid).update({ pin:'1234' });
+  const userData = userForSave(uid);
+  userData.pin = '1234';
+  await saveUser(uid, userData);
   toast('PIN reset to 1234');
 }
 
@@ -1078,7 +1116,7 @@ async function adminDeleteUser(uid) {
 }
 
 async function confirmDeleteUser(uid) {
-  await db.collection('users').doc(uid).delete();
+  await deleteUser(uid);
   closeModal(); toast('User deleted');
 }
 
@@ -1158,9 +1196,51 @@ function renderVaultScreen() {
         </p>
         <button class="btn-primary" onclick="forceRefreshMenu()" style="padding:0.65rem 1.2rem;">↻ Refresh Menu Now</button>
       </div>
+      <div class="vault-section">
+        <h3>Data Migration</h3>
+        <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;line-height:1.5">
+          If you're upgrading from the old version, use this button to migrate your existing users and table data to the new optimised format.
+          This only needs to be done <strong style="color:var(--gold)">once</strong>. It's safe to run multiple times.
+        </p>
+        <button class="btn-primary" onclick="migrateOldData()" style="padding:0.65rem 1.2rem;">↻ Migrate Old Data</button>
+        <div id="migrate-status" style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-dim);"></div>
+      </div>
     </div>
   `;
   setTimeout(renderVault, 800);
+}
+
+// ─── DATA MIGRATION ──────────────────────────────────────────
+// Migrates old collection-per-document format to single-doc format.
+async function migrateOldData() {
+  const statusEl = document.getElementById('migrate-status');
+  if (statusEl) statusEl.textContent = 'Migrating...';
+  let migratedUsers = 0, migratedTables = 0;
+
+  try {
+    // Migrate users collection → _data/users
+    const usersSnap = await db.collection('users').get();
+    if (!usersSnap.empty) {
+      const usersObj = {};
+      usersSnap.forEach(doc => { usersObj[doc.id] = doc.data(); });
+      await db.collection('_data').doc('users').set(usersObj, { merge: true });
+      migratedUsers = usersSnap.size;
+    }
+
+    // Migrate tables collection → _data/tables
+    const tablesSnap = await db.collection('tables').get();
+    if (!tablesSnap.empty) {
+      const tablesObj = {};
+      tablesSnap.forEach(doc => { tablesObj[doc.id] = doc.data(); });
+      await db.collection('_data').doc('tables').set(tablesObj, { merge: true });
+      migratedTables = tablesSnap.size;
+    }
+
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--success);">✓ Done!</span> Migrated ${migratedUsers} users and ${migratedTables} tables. You can now delete the old <code>users</code> and <code>tables</code> collections from the Firebase Console to save space.`;
+  } catch(e) {
+    console.error('Migration error:', e);
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger);">⚠ Error:</span> ${e.message}`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
