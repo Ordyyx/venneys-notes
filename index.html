@@ -9,117 +9,113 @@
   <meta name="apple-mobile-web-app-title" content="Venneys">
   <title>Venney's Order Notes</title>
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══════════════════════════════════ LOGIN SCREEN -->
+  <!-- ═══════════════════════════ LOGIN -->
   <div id="screen-login" class="screen">
-    <div class="login-logo">
-      <h1>Venney's</h1>
-      <p>at the Granby &nbsp;·&nbsp; Order Notes</p>
-    </div>
+    <div class="login-container">
 
-    <div class="login-card">
-      <div id="user-select-list" class="user-select-list">
-        <div style="color:var(--text-dim);font-size:0.85rem;text-align:center;padding:1rem;">Loading...</div>
-      </div>
-
-      <div class="pin-section" id="pin-section">
-        <div class="pin-label">Enter PIN</div>
-        <div class="pin-dots">
-          <div class="pin-dot" id="dot-0"></div>
-          <div class="pin-dot" id="dot-1"></div>
-          <div class="pin-dot" id="dot-2"></div>
-          <div class="pin-dot" id="dot-3"></div>
-        </div>
-        <div class="pin-pad">
-          <button class="pin-key" onclick="pinPress('1')">1</button>
-          <button class="pin-key" onclick="pinPress('2')">2</button>
-          <button class="pin-key" onclick="pinPress('3')">3</button>
-          <button class="pin-key" onclick="pinPress('4')">4</button>
-          <button class="pin-key" onclick="pinPress('5')">5</button>
-          <button class="pin-key" onclick="pinPress('6')">6</button>
-          <button class="pin-key" onclick="pinPress('7')">7</button>
-          <button class="pin-key" onclick="pinPress('8')">8</button>
-          <button class="pin-key" onclick="pinPress('9')">9</button>
-          <button class="pin-key" style="visibility:hidden"></button>
-          <button class="pin-key" onclick="pinPress('0')">0</button>
-          <button class="pin-key del" onclick="pinPress('del')">⌫</button>
+      <div class="login-left">
+        <div class="login-logo">
+          <h1>Venney's</h1>
+          <p>at the Granby</p>
+          <p class="tagline">Order note-taking system for front-of-house staff.</p>
         </div>
       </div>
+
+      <div class="login-right">
+        <div class="login-card">
+          <h2>Select your name</h2>
+          <div id="user-select-list" class="user-select-list">
+            <div style="color:var(--text-dim);font-size:0.9rem;text-align:center;padding:1rem;">Loading...</div>
+          </div>
+
+          <div class="pin-section" id="pin-section">
+            <div class="pin-label">Enter PIN</div>
+            <div class="pin-dots">
+              <div class="pin-dot"></div>
+              <div class="pin-dot"></div>
+              <div class="pin-dot"></div>
+              <div class="pin-dot"></div>
+            </div>
+            <div class="pin-pad">
+              <button class="pin-key" onclick="pinPress('1')">1</button>
+              <button class="pin-key" onclick="pinPress('2')">2</button>
+              <button class="pin-key" onclick="pinPress('3')">3</button>
+              <button class="pin-key" onclick="pinPress('4')">4</button>
+              <button class="pin-key" onclick="pinPress('5')">5</button>
+              <button class="pin-key" onclick="pinPress('6')">6</button>
+              <button class="pin-key" onclick="pinPress('7')">7</button>
+              <button class="pin-key" onclick="pinPress('8')">8</button>
+              <button class="pin-key" onclick="pinPress('9')">9</button>
+              <button class="pin-key" style="visibility:hidden"></button>
+              <button class="pin-key" onclick="pinPress('0')">0</button>
+              <button class="pin-key del" onclick="pinPress('del')">⌫</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════ TABLES SCREEN -->
+  <!-- ═══════════════════════════ TABLES -->
   <div id="screen-tables" class="screen">
     <div class="tables-header">
       <span class="logo-small">Venney's</span>
-      <div class="header-actions">
-        <span class="pin-change-trigger" onclick="showPinChange()">Change PIN</span>
-        <span class="logout-btn" onclick="logout()">Sign out</span>
-        <button class="close-all-btn" onclick="showCloseAll()">Close All</button>
+      <div class="header-right">
+        <span class="header-user-label">Signed in as <strong id="header-user-name"></strong></span>
+        <button class="hdr-btn" onclick="showPinChange()">Change PIN</button>
+        <button class="hdr-btn" onclick="logout()">Sign out</button>
+        <button class="hdr-btn danger" onclick="showCloseAll()">Close All Tables</button>
       </div>
-    </div>
-    <div style="padding:0.4rem 1rem 0;font-size:0.7rem;color:var(--text-dim);flex-shrink:0;">
-      Signed in as <span id="header-user-name" style="color:var(--gold)"></span>
     </div>
     <div class="tables-grid-scroll">
       <div id="tables-grid" class="tables-grid"></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════ TABLE DETAIL SCREEN -->
+  <!-- ═══════════════════════════ TABLE DETAIL -->
   <div id="screen-table" class="screen">
+
     <div class="table-detail-header">
       <button class="back" onclick="goTo('tables')">‹</button>
       <h2 id="table-detail-title">Table</h2>
-      <button class="allergen-badge" id="allergen-badge" onclick="showAllergenModal(currentTableId, false)" style="display:none">⚠ Allergens</button>
+      <button class="allergen-badge" id="allergen-badge" onclick="showAllergenModal(currentTableId, false)">
+        ⚠ Allergens
+      </button>
       <button class="close-table-btn" onclick="closeTable(currentTableId)">Close Table</button>
     </div>
 
-    <!-- Allergen info bar -->
-    <div id="allergen-info-bar" style="display:none;background:rgba(255,152,0,0.1);border-bottom:1px solid rgba(255,152,0,0.3);padding:0.4rem 1rem;font-size:0.75rem;color:#ffcc02;flex-shrink:0;"></div>
+    <div id="allergen-info-bar" class="allergen-info-bar"></div>
 
-    <div class="table-content">
-
-      <!-- MENU TABS -->
-      <div id="menu-tabs" class="menu-tabs"></div>
-
-      <!-- MENU PANEL -->
-      <div id="menu-panel" class="menu-panel"></div>
-
-      <!-- SPECIAL ACTIONS -->
-      <div class="special-actions">
-        <button class="special-btn drink" onclick="addDrink()">🍷 Add Drink</button>
-        <button class="special-btn misc" onclick="showMiscModal()">✏ Misc Food Item</button>
+    <!-- Orders fill this area -->
+    <div class="table-body">
+      <div class="orders-scroll">
+        <div id="order-cards" class="order-cards"></div>
       </div>
 
-      <!-- ORDER NOTES -->
-      <div class="notes-section">
-        <h4>Order Notes</h4>
-        <div id="order-cards" class="order-cards">
-          <div class="empty-state">No orders yet</div>
-        </div>
+      <!-- Sticky bottom bar -->
+      <div class="add-order-bar">
+        <button class="add-order-btn" onclick="showAddOrderModal()">+ Add Order</button>
+        <button class="pin-change-link" onclick="showPinChange()">Change PIN</button>
       </div>
-
     </div>
+
   </div>
 
-  <!-- ═══════════════════════════════════ VAULT SCREEN (admin) -->
+  <!-- ═══════════════════════════ VAULT (admin) -->
   <div id="screen-vault" class="screen">
-    <!-- Content injected by renderVaultScreen() -->
+    <!-- Injected by renderVaultScreen() -->
   </div>
 
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- App scripts -->
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
