@@ -1,6 +1,4 @@
 // ─── FIREBASE SETUP ─────────────────────────────────────────
-// !! REPLACE THESE VALUES with your actual Firebase project config !!
-// Find them at: Firebase Console → Project Settings → Your Apps → SDK setup
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCzyWV43V_tjlJAV_NyYCJ2Cxy_Zq7pZoQ",
   authDomain: "venneys.firebaseapp.com",
@@ -80,16 +78,11 @@ function loadUsers() {
 }
 
 // ─── LIVE MENU SCRAPER ────────────────────────────────────────
-// Fetches the live menu from the Venney's website, parses it,
-// and caches it in Firestore for 30 minutes so all devices share one fetch.
-// Falls back to bundled MENU_DATA if the fetch or parse fails.
-
 const MENU_URL = 'https://www.venneysatthegranby.co.uk/menus/';
 const CORS_PROXY = 'https://corsproxy.io/?';
-const MENU_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const MENU_CACHE_TTL = 30 * 60 * 1000;
 
 async function loadLiveMenu() {
-  // 1. Try Firestore cache first
   try {
     const cached = await db.collection('_config').doc('menu_cache').get();
     if (cached.exists) {
@@ -103,7 +96,6 @@ async function loadLiveMenu() {
     }
   } catch(e) { /* non-fatal */ }
 
-  // 2. Fetch live from the website
   menuLoadState = 'loading';
   try {
     const resp = await fetch(CORS_PROXY + encodeURIComponent(MENU_URL));
@@ -113,12 +105,9 @@ async function loadLiveMenu() {
     if (parsed) {
       liveMenuData = parsed;
       menuLoadState = 'loaded';
-      // Save to Firestore so all devices share the cache
       try {
         await db.collection('_config').doc('menu_cache').set({
-          menu: parsed,
-          timestamp: Date.now(),
-          url: MENU_URL
+          menu: parsed, timestamp: Date.now(), url: MENU_URL
         });
       } catch(e) { /* non-fatal */ }
       console.log('[Menu] Scraped and cached from live site');
@@ -155,14 +144,12 @@ function parseMenuHTML(html) {
   let idCounter = 0;
   const uid = prefix => `${prefix}_${++idCounter}`;
 
-  // Walk the DOM looking for section/category headings and menu items
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
   let node = walker.nextNode();
 
   while (node) {
     const tag = node.tagName?.toLowerCase();
 
-    // h2 = top-level menu section
     if (tag === 'h2') {
       const text = node.textContent.trim().toLowerCase();
       const key = MENU_KEY_MAP[text];
@@ -179,10 +166,8 @@ function parseMenuHTML(html) {
       }
     }
 
-    // h3 = category within a menu
     if (tag === 'h3' && currentMenuKey) {
       const raw = node.textContent.trim();
-      // Strip prefixes like "Lunch Starters" → "Starters"
       const stripped = raw.replace(/^(breakfast|lunch|evening|sunday|dessert|children['s]*)\s*/i, '').replace(/\s*menu$/i, '').trim();
       currentCat = stripped || raw;
       if (!result[currentMenuKey].categories[currentCat]) {
@@ -190,7 +175,6 @@ function parseMenuHTML(html) {
       }
     }
 
-    // Menu items — PriceListo plugin uses specific class patterns
     if (currentMenuKey && currentCat) {
       const isItem = node.classList?.contains('menu-item') ||
                      node.classList?.contains('pricelisto-menu-item') ||
@@ -203,10 +187,10 @@ function parseMenuHTML(html) {
         if (name && name.length > 2) {
           result[currentMenuKey].categories[currentCat].push({
             id: uid(currentMenuKey.slice(0,2)),
-            name,
-            desc,
+            name, desc,
             isFishChips: /haddock|scampi|fish platter|goujons/i.test(name),
-            isSteak: /steak$/i.test(name) && !/sauce|pie/i.test(name)
+            isSteak: /steak$/i.test(name) && !/sauce|pie/i.test(name),
+            isBurger: /burger/i.test(name)
           });
         }
       }
@@ -215,7 +199,6 @@ function parseMenuHTML(html) {
     node = walker.nextNode();
   }
 
-  // Validate: if we didn't find enough items, fall back to bundled data
   const totalItems = Object.values(result).reduce((sum, menu) =>
     sum + Object.values(menu.categories).reduce((s, items) => s + items.length, 0), 0);
 
@@ -224,7 +207,6 @@ function parseMenuHTML(html) {
     return null;
   }
 
-  // Clean empty categories
   Object.keys(result).forEach(k => {
     Object.keys(result[k].categories).forEach(cat => {
       if (!result[k].categories[cat].length) delete result[k].categories[cat];
@@ -255,11 +237,11 @@ function goTo(name) {
 // ─── AUTH ────────────────────────────────────────────────────
 function renderUserList() {
   const el = document.getElementById('user-select-list');
-  if (!el) return; // screen not visible yet, snapshot will re-fire
+  if (!el) return;
   el.innerHTML = '';
   const users = Object.values(usersData).sort((a,b) => a.name.localeCompare(b.name));
   if (!users.length) {
-    el.innerHTML = '<div style="color:var(--text-dim);font-size:0.9rem;text-align:center;padding:1.5rem;">No users found.<br>Visit <strong style="color:var(--gold)">/vault</strong> to add users.</div>';
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:0.9rem;text-align:center;padding:1.5rem;grid-column:1/-1;">No users found.<br>Visit <strong style="color:var(--gold)">/vault</strong> to add users.</div>';
     return;
   }
   users.forEach(u => {
@@ -277,8 +259,18 @@ function selectUser(uid, btn) {
   pinBuffer = '';
   document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  document.querySelector('.pin-section').classList.add('show');
+  // Show floating pin overlay
+  const user = usersData[uid];
+  document.getElementById('pin-popup-user').textContent = user?.name || '';
+  document.getElementById('pin-overlay').classList.add('show');
   updatePinDots();
+}
+
+function closePinOverlay() {
+  document.getElementById('pin-overlay').classList.remove('show');
+  selectedUserId = null;
+  pinBuffer = '';
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
 }
 
 function updatePinDots() {
@@ -300,6 +292,7 @@ function attemptLogin() {
   if (!user) return;
   if (pinBuffer === (user.pin || '1234')) {
     currentUser = { ...user };
+    closePinOverlay();
     goTo('tables');
     renderTables();
     toast(`Welcome, ${currentUser.name}!`);
@@ -312,9 +305,7 @@ function attemptLogin() {
 
 function logout() {
   currentUser = null; selectedUserId = null; pinBuffer = '';
-  document.querySelectorAll('.user-btn')?.forEach(b => b.classList.remove('selected'));
-  document.querySelector('.pin-section')?.classList.remove('show');
-  updatePinDots();
+  closePinOverlay();
   goTo('login');
 }
 
@@ -357,7 +348,13 @@ function renderTables() {
     const tData = tableData[String(t.id)] || { open: false, orders: [], allergens: [] };
     const tile = document.createElement('div');
     tile.className = 'table-tile ' + (tData.open ? 'open' : 'closed');
-    const count = (tData.orders||[]).length;
+    const orders = tData.orders || [];
+    // Count total individual items across all order groups
+    let count = 0;
+    orders.forEach(o => {
+      if (o.items && Array.isArray(o.items)) count += o.items.length;
+      else count += 1; // legacy single-item order
+    });
     const hasAllergens = (tData.allergens||[]).length > 0 || tData.otherAllergen;
     tile.innerHTML = `
       <span class="t-number">${t.label.replace('Table ','')}</span>
@@ -486,27 +483,37 @@ function getActiveMenus() {
 }
 
 // ─── ADD ORDER MODAL ──────────────────────────────────────────
+// Split-panel layout: menu on left, pending items on right.
+// Sub-modals overlay on top without destroying the main order modal.
+
+let pendingOrderItems = [];
+
 function showAddOrderModal() {
+  pendingOrderItems = [];
   const menuData = getMenuData();
   const activeMenus = getActiveMenus();
   const allKeys = ['breakfast','lunch','evening','sunday','dessert','children'];
-  // Only show currently-available menus
   const visibleMenus = allKeys.filter(k => activeMenus.includes(k));
   const defaultTab = (currentMenuTab && visibleMenus.includes(currentMenuTab))
     ? currentMenuTab : (visibleMenus[0] || 'evening');
 
-  openLargeModal(`
+  // Use dedicated order modal (not the generic modal system)
+  closeOrderModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay modal-overlay-large';
+  overlay.id = 'order-modal-overlay';
+  overlay.innerHTML = `<div class="modal modal-large">
     <div class="order-modal-layout">
       <div class="order-modal-header">
         <div class="quick-actions-bar">
-          <button class="quick-btn drink-btn" onclick="addDrink()">
+          <button class="quick-btn drink-btn" onclick="showDrinkSubModal()">
             <span class="quick-icon">🍷</span> Add Drink
           </button>
-          <button class="quick-btn misc-btn" onclick="showMiscModal()">
+          <button class="quick-btn misc-btn" onclick="showMiscSubModal()">
             <span class="quick-icon">✏️</span> Misc Item
           </button>
         </div>
-        <button class="order-close-btn" onclick="closeModal()">✕</button>
+        <button class="order-close-btn" onclick="closeOrderModal()">✕</button>
       </div>
 
       <div class="order-menu-tabs" id="order-menu-tabs">
@@ -516,13 +523,98 @@ function showAddOrderModal() {
           </button>`).join('')}
       </div>
 
-      <div class="order-modal-body" id="order-modal-body"></div>
+      <div class="order-split-body">
+        <div class="order-menu-side">
+          <div class="order-modal-body" id="order-modal-body"></div>
+        </div>
+        <div class="order-pending-side" id="order-pending-side">
+          <div class="pending-side-header">
+            <span class="pending-side-title">Your Order</span>
+            <span class="pending-side-count" id="pending-count">0 items</span>
+          </div>
+          <div class="pending-side-list" id="pending-list">
+            <div class="pending-empty">Tap menu items to add them</div>
+          </div>
+          <div class="pending-side-footer">
+            <button class="btn-primary pending-done-btn" id="pending-done-btn" onclick="submitOrderBatch()" disabled>Done</button>
+          </div>
+        </div>
+      </div>
     </div>
-  `);
+  </div>`;
+  overlay.onclick = e => { if (e.target === overlay) closeOrderModal(); };
+  document.body.appendChild(overlay);
 
   currentMenuTab = defaultTab;
   currentCategoryTab = null;
   renderOrderModalBody(defaultTab);
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal-overlay')?.remove();
+  pendingOrderItems = [];
+}
+
+function renderPendingSide() {
+  const list = document.getElementById('pending-list');
+  const countEl = document.getElementById('pending-count');
+  const doneBtn = document.getElementById('pending-done-btn');
+  if (!list) return;
+
+  const n = pendingOrderItems.length;
+  if (countEl) countEl.textContent = `${n} item${n !== 1 ? 's' : ''}`;
+  if (doneBtn) doneBtn.disabled = n === 0;
+
+  if (n === 0) {
+    list.innerHTML = '<div class="pending-empty">Tap menu items to add them</div>';
+    return;
+  }
+
+  list.innerHTML = pendingOrderItems.map((item, i) => `
+    <div class="pending-item" style="animation:pendingSlide 0.15s ease">
+      <span class="pending-item-icon">${item.icon}</span>
+      <div class="pending-item-body">
+        <div class="pending-item-name">${item.name}</div>
+        ${item.optSummary ? `<div class="pending-item-opts">${item.optSummary}</div>` : ''}
+      </div>
+      <button class="pending-item-remove" onclick="removePendingItem(${i})">✕</button>
+    </div>
+  `).join('');
+  // Auto-scroll to bottom
+  list.scrollTop = list.scrollHeight;
+}
+
+function removePendingItem(index) {
+  pendingOrderItems.splice(index, 1);
+  renderPendingSide();
+}
+
+async function submitOrderBatch() {
+  if (pendingOrderItems.length === 0) return toast('Add some items first');
+  const tId = currentTableId;
+  const existing = tableData[tId] || { open:true, orders:[] };
+  const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+  const types = [...new Set(pendingOrderItems.map(i => i.type))];
+  let groupType = 'food';
+  if (types.length === 1) groupType = types[0];
+  else if (types.includes('food')) groupType = 'food';
+
+  const orderGroup = {
+    id: 'grp_' + Date.now(),
+    type: groupType,
+    user: currentUser.name,
+    time: now,
+    items: pendingOrderItems.map(item => ({
+      id: item.id, name: item.name, type: item.type,
+      opts: item.opts || {}, extraNote: item.extraNote || '', icon: item.icon
+    }))
+  };
+
+  const orders = [...(existing.orders||[]), orderGroup];
+  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  toast(`Order added: ${pendingOrderItems.length} item${pendingOrderItems.length>1?'s':''}`);
+  closeOrderModal();
 }
 
 function switchOrderMenuTab(key) {
@@ -586,16 +678,46 @@ function findMenuItem(menuKey, itemId) {
   return null;
 }
 
+function itemIsBurger(item) {
+  return item.isBurger || /burger/i.test(item.name);
+}
+
+function itemHasCheese(item) {
+  return itemIsBurger(item) && /(blue\s*cheese|monterey|jack)/i.test(item.desc || item.name);
+}
+
 function addItem(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
   if (!item) return;
-  if (item.isFishChips) showFishChipsModal(item, menuKey);
-  else if (item.isSteak) showSteakModal(item, menuKey);
-  else showItemConfirmModal(item, menuKey);
+  // Items that need option selection get a sub-modal
+  if (item.isFishChips) showFishChipsSubModal(item, menuKey);
+  else if (item.isSteak) showSteakSubModal(item, menuKey);
+  else if (itemHasCheese(item)) showBurgerCheeseSubModal(item, menuKey);
+  else {
+    // Simple items go straight into pending — no sub-modal needed
+    addToPending(item, 'food', {}, '');
+  }
 }
 
-function showFishChipsModal(item, menuKey) {
-  openModal(`
+// ─── SUB-MODAL SYSTEM ────────────────────────────────────────
+// These overlay on TOP of the order modal, using a separate element
+
+function openSubModal(html) {
+  closeSubModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'sub-modal-overlay';
+  overlay.id = 'sub-modal-overlay';
+  overlay.innerHTML = `<div class="sub-modal">${html}</div>`;
+  overlay.onclick = e => { if (e.target === overlay) closeSubModal(); };
+  document.body.appendChild(overlay);
+}
+
+function closeSubModal() {
+  document.getElementById('sub-modal-overlay')?.remove();
+}
+
+function showFishChipsSubModal(item, menuKey) {
+  openSubModal(`
     <h3>${item.name}</h3>
     <p>${item.desc}</p>
     <span class="modal-label">Peas</span>
@@ -611,29 +733,29 @@ function showFishChipsModal(item, menuKey) {
     <span class="modal-label">Tartar Sauce?</span>
     <div class="modal-options">
       <button class="opt-btn" data-group="tartar" data-val="Tartar Sauce" onclick="selectOpt(this)">Tartar Sauce</button>
-      <button class="opt-btn" data-group="tartar" data-val="No Tartar Sauce" onclick="selectOpt(this)">No Tartar Sauce</button>
+      <button class="opt-btn" data-group="tartar" data-val="No Tartar" onclick="selectOpt(this)">No Tartar</button>
     </div>
     <span class="modal-label">Extra notes (optional)</span>
     <input class="modal-input" id="item-extra-note" placeholder="Any extra requests...">
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="showAddOrderModal()">← Back</button>
-      <button class="btn-primary" onclick="confirmFishChips('${item.id}','${menuKey}')">Add to Order</button>
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmFishChipsPending('${item.id}','${menuKey}')">Add</button>
     </div>
   `);
 }
 
-function confirmFishChips(itemId, menuKey) {
+function confirmFishChipsPending(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
   const opts = {};
   ['peas','chips','tartar'].forEach(g => {
-    const el = document.querySelector(`.opt-btn.selected[data-group="${g}"]`);
+    const el = document.querySelector(`#sub-modal-overlay .opt-btn.selected[data-group="${g}"]`);
     if (el) opts[g] = el.dataset.val;
   });
-  addOrderEntry(item, menuKey, opts, document.getElementById('item-extra-note')?.value || '');
+  addToPending(item, 'food', opts, document.getElementById('item-extra-note')?.value || '');
 }
 
-function showSteakModal(item, menuKey) {
-  openModal(`
+function showSteakSubModal(item, menuKey) {
+  openSubModal(`
     <h3>${item.name}</h3>
     <p>${item.desc}</p>
     <span class="modal-label">Steak Sauce</span>
@@ -643,60 +765,118 @@ function showSteakModal(item, menuKey) {
     <span class="modal-label">Extra notes (optional)</span>
     <input class="modal-input" id="item-extra-note" placeholder="e.g. well done, rare...">
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="showAddOrderModal()">← Back</button>
-      <button class="btn-primary" onclick="confirmSteak('${item.id}','${menuKey}')">Add to Order</button>
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmSteakPending('${item.id}','${menuKey}')">Add</button>
     </div>
   `);
 }
 
-function confirmSteak(itemId, menuKey) {
+function confirmSteakPending(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
-  const sauceEl = document.querySelector('.opt-btn.selected[data-group="sauce"]');
-  addOrderEntry(item, menuKey, sauceEl ? { sauce: sauceEl.dataset.val } : {}, document.getElementById('item-extra-note')?.value || '');
+  const sauceEl = document.querySelector('#sub-modal-overlay .opt-btn.selected[data-group="sauce"]');
+  addToPending(item, 'food', sauceEl ? { sauce: sauceEl.dataset.val } : {}, document.getElementById('item-extra-note')?.value || '');
 }
 
-function showItemConfirmModal(item, menuKey) {
-  openModal(`
+function showBurgerCheeseSubModal(item, menuKey) {
+  openSubModal(`
     <h3>${item.name}</h3>
-    ${item.desc ? `<p>${item.desc}</p>` : ''}
+    <p>${item.desc}</p>
+    <span class="modal-label">Cheese Choice</span>
+    <div class="modal-options">
+      <button class="opt-btn" data-group="cheese" data-val="Monterey Jack" onclick="selectOpt(this)">Monterey Jack</button>
+      <button class="opt-btn" data-group="cheese" data-val="Blue Cheese" onclick="selectOpt(this)">Blue Cheese</button>
+    </div>
     <span class="modal-label">Extra notes (optional)</span>
     <input class="modal-input" id="item-extra-note" placeholder="Any extra requests...">
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="showAddOrderModal()">← Back</button>
-      <button class="btn-primary" onclick="confirmAddItem('${item.id}','${menuKey}')">Add to Order</button>
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmBurgerPending('${item.id}','${menuKey}')">Add</button>
     </div>
   `);
 }
 
-function confirmAddItem(itemId, menuKey) {
+function confirmBurgerPending(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
-  addOrderEntry(item, menuKey, {}, document.getElementById('item-extra-note')?.value || '');
+  const cheeseEl = document.querySelector('#sub-modal-overlay .opt-btn.selected[data-group="cheese"]');
+  addToPending(item, 'food', cheeseEl ? { cheese: cheeseEl.dataset.val } : {}, document.getElementById('item-extra-note')?.value || '');
+}
+
+function addToPending(item, type, opts, extraNote) {
+  const optSummary = Object.values(opts).join(' · ');
+  pendingOrderItems.push({
+    id: `${item.id}_${Date.now()}`,
+    name: item.name, type, opts, extraNote, optSummary,
+    icon: type === 'drink' ? '🍷' : type === 'misc' ? '✏️' : '🍽'
+  });
+  closeSubModal(); // Close sub-modal only, order modal stays open
+  renderPendingSide();
+  toast(`Added: ${item.name}`);
 }
 
 function selectOpt(btn) {
-  document.querySelectorAll(`.opt-btn[data-group="${btn.dataset.group}"]`).forEach(b => b.classList.remove('selected'));
+  const root = btn.closest('#sub-modal-overlay') || document;
+  root.querySelectorAll(`.opt-btn[data-group="${btn.dataset.group}"]`).forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 }
 
-function addDrink() {
-  closeModal();
-  pushOrder({
-    id: 'drink_'+Date.now(), type:'drink', name:'Drink', menuKey:'drinks',
-    opts:{}, extraNote:'',
-    user: currentUser.name,
-    time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
-  });
+// ─── DRINK SUB-MODAL ─────────────────────────────────────────
+function showDrinkSubModal() {
+  openSubModal(`
+    <h3>Add Drink</h3>
+    <span class="modal-label">Drink name</span>
+    <input class="modal-input" id="drink-name-input" placeholder="e.g. Coke, Peroni, Gin & Tonic...">
+    <span class="modal-label">Size</span>
+    <div class="modal-options">
+      <button class="opt-btn" data-group="size" data-val="Half Pint" onclick="selectOpt(this)">Half Pint</button>
+      <button class="opt-btn" data-group="size" data-val="Pint" onclick="selectOpt(this)">Pint</button>
+      <button class="opt-btn selected" data-group="size" data-val="Regular" onclick="selectOpt(this)">Regular</button>
+    </div>
+    <div class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="drink-ice-toggle">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Ice</span>
+    </div>
+    <span class="modal-label">Extra notes (optional)</span>
+    <input class="modal-input" id="drink-note-input" placeholder="e.g. with lime, no lemon...">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmDrink()">Add</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('drink-name-input')?.focus(), 100);
 }
 
-function showMiscModal() {
-  openModal(`
+function confirmDrink() {
+  const name = document.getElementById('drink-name-input')?.value?.trim();
+  if (!name) return toast('Enter a drink name');
+  const sizeEl = document.querySelector('#sub-modal-overlay .opt-btn.selected[data-group="size"]');
+  const size = sizeEl?.dataset.val || 'Regular';
+  const ice = document.getElementById('drink-ice-toggle')?.checked;
+  const note = document.getElementById('drink-note-input')?.value?.trim() || '';
+  const opts = { size };
+  if (ice) opts.ice = 'With Ice';
+  const optSummary = [size, ice ? 'Ice' : '', note].filter(Boolean).join(' · ');
+  pendingOrderItems.push({
+    id: 'drink_' + Date.now(),
+    name, type: 'drink', opts, extraNote: note, optSummary, icon: '🍷'
+  });
+  closeSubModal();
+  renderPendingSide();
+  toast(`Added: ${name}`);
+}
+
+// ─── MISC SUB-MODAL ─────────────────────────────────────────
+function showMiscSubModal() {
+  openSubModal(`
     <h3>Miscellaneous Item</h3>
     <input class="modal-input" id="misc-name" placeholder="e.g. Extra bread, no onion...">
     <span class="modal-label">Extra notes (optional)</span>
     <input class="modal-input" id="misc-note" placeholder="Any extra details...">
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="showAddOrderModal()">← Back</button>
-      <button class="btn-primary" onclick="confirmMisc()">Add Item</button>
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmMisc()">Add</button>
     </div>
   `);
   setTimeout(() => document.getElementById('misc-name')?.focus(), 100);
@@ -705,60 +885,67 @@ function showMiscModal() {
 function confirmMisc() {
   const name = document.getElementById('misc-name')?.value?.trim();
   if (!name) return toast('Please enter an item name');
-  addOrderEntry({ id:'misc', name }, 'misc', {}, document.getElementById('misc-note')?.value || '');
-}
-
-async function addOrderEntry(item, menuKey, opts, extraNote) {
-  const order = {
-    id: `${item.id}_${Date.now()}`,
-    type: menuKey==='misc'?'misc':menuKey==='drinks'?'drink':'food',
-    name: item.name, menuKey, opts, extraNote,
-    user: currentUser.name,
-    time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
-  };
-  closeModal();
-  pushOrder(order);
-}
-
-async function pushOrder(order) {
-  const tId = currentTableId;
-  const existing = tableData[tId] || { open:true, orders:[] };
-  await db.collection('tables').doc(tId).set({ ...existing, orders:[...(existing.orders||[]),order] }, { merge:true });
-  toast('Added: ' + order.name);
+  const note = document.getElementById('misc-note')?.value?.trim() || '';
+  pendingOrderItems.push({
+    id: 'misc_' + Date.now(),
+    name, type: 'misc', opts: {}, extraNote: note, optSummary: note, icon: '✏️'
+  });
+  closeSubModal();
+  renderPendingSide();
+  toast(`Added: ${name}`);
 }
 
 // ─── EXTRA NOTE / DELETE ──────────────────────────────────────
-function addExtraNote(orderId) {
+function addExtraNote(groupId, itemIndex) {
   openModal(`
     <h3>Add Note</h3>
     <input class="modal-input" id="extra-note-input" placeholder="Extra note for this item...">
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveExtraNote('${orderId}')">Save</button>
+      <button class="btn-primary" onclick="saveExtraNote('${groupId}',${itemIndex})">Save</button>
     </div>
   `);
   setTimeout(() => document.getElementById('extra-note-input')?.focus(), 100);
 }
 
-async function saveExtraNote(orderId) {
+async function saveExtraNote(groupId, itemIndex) {
   const note = document.getElementById('extra-note-input')?.value?.trim();
   if (!note) return closeModal();
   const tId = currentTableId;
   const existing = tableData[tId] || {};
-  const orders = (existing.orders||[]).map(o =>
-    o.id===orderId ? {...o, extraNote: o.extraNote ? o.extraNote+'; '+note : note} : o
-  );
+  const orders = (existing.orders||[]).map(o => {
+    if (o.id === groupId && o.items && o.items[itemIndex] !== undefined) {
+      const items = [...o.items];
+      items[itemIndex] = { ...items[itemIndex], extraNote: items[itemIndex].extraNote ? items[itemIndex].extraNote + '; ' + note : note };
+      return { ...o, items };
+    }
+    return o;
+  });
   await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
   closeModal(); toast('Note added');
 }
 
-async function deleteOrder(orderId) {
+async function deleteOrderItem(groupId, itemIndex) {
   const tId = currentTableId;
   const existing = tableData[tId] || {};
-  await db.collection('tables').doc(tId).set({
-    ...existing, orders: (existing.orders||[]).filter(o => o.id!==orderId)
-  }, { merge:true });
+  let orders = (existing.orders||[]).map(o => {
+    if (o.id === groupId && o.items) {
+      const items = o.items.filter((_, i) => i !== itemIndex);
+      if (items.length === 0) return null; // Remove entire group
+      return { ...o, items };
+    }
+    return o;
+  }).filter(Boolean);
+  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
   toast('Item removed');
+}
+
+async function deleteOrderGroup(groupId) {
+  const tId = currentTableId;
+  const existing = tableData[tId] || {};
+  const orders = (existing.orders||[]).filter(o => o.id !== groupId);
+  await db.collection('tables').doc(tId).set({ ...existing, orders }, { merge:true });
+  toast('Order removed');
 }
 
 // ─── RENDER ORDERS ────────────────────────────────────────────
@@ -790,22 +977,59 @@ function renderOrders(tId) {
   }
 
   el.innerHTML = orders.map(o => {
+    // New grouped order format
+    if (o.items && Array.isArray(o.items)) {
+      const typeLabel = o.type === 'drink' ? 'Drinks' : o.type === 'misc' ? 'Misc' : 'Food';
+      const typeClass = o.type === 'drink' ? 'drink' : o.type === 'misc' ? 'misc' : '';
+      return `
+        <div class="order-group">
+          <div class="order-group-header">
+            <span class="order-group-type ${typeClass}">${typeLabel}</span>
+            <span class="order-group-user">${o.user}</span>
+            <span class="order-group-time">${o.time}</span>
+            <div class="order-group-actions">
+              <button class="card-action-btn del" onclick="deleteOrderGroup('${o.id}')">Remove All</button>
+            </div>
+          </div>
+          <div class="order-group-items">
+            ${o.items.map((item, idx) => {
+              const optLines = Object.values(item.opts||{}).join(' · ');
+              const icon = item.type==='drink'?'🍷':item.type==='misc'?'✏️':'🍽';
+              return `
+                <div class="order-group-item">
+                  <span class="ogi-icon">${icon}</span>
+                  <div class="ogi-body">
+                    <div class="ogi-name">${item.name}</div>
+                    ${optLines ? `<div class="ogi-options">${optLines}</div>` : ''}
+                    ${item.extraNote ? `<div class="ogi-note">📝 ${item.extraNote}</div>` : ''}
+                  </div>
+                  <div class="ogi-actions">
+                    <button class="card-action-btn" onclick="addExtraNote('${o.id}',${idx})">+ Note</button>
+                    <button class="card-action-btn del" onclick="deleteOrderItem('${o.id}',${idx})">✕</button>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+    // Legacy single-item format (backward compat)
     const optLines = Object.values(o.opts||{}).join(' · ');
     const icon = o.type==='drink'?'🍷':o.type==='misc'?'✏️':'🍽';
     return `
-      <div class="order-card ${o.type}">
-        <div class="card-icon">${icon}</div>
-        <div class="card-body">
-          <div class="card-row-top">
-            <span class="card-name">${o.name}</span>
-            <span class="card-user">${o.user}</span>
-            <span class="card-time">${o.time}</span>
-          </div>
-          ${optLines ? `<div class="card-options">${optLines}</div>` : ''}
-          ${o.extraNote ? `<div class="card-extra-note">📝 ${o.extraNote}</div>` : ''}
-          <div class="card-actions">
-            <button class="card-action-btn" onclick="addExtraNote('${o.id}')">+ Note</button>
-            <button class="card-action-btn del" onclick="deleteOrder('${o.id}')">Remove</button>
+      <div class="order-group">
+        <div class="order-group-header">
+          <span class="order-group-type ${o.type==='drink'?'drink':o.type==='misc'?'misc':''}">${o.type==='drink'?'Drink':o.type==='misc'?'Misc':'Food'}</span>
+          <span class="order-group-user">${o.user}</span>
+          <span class="order-group-time">${o.time}</span>
+        </div>
+        <div class="order-group-items">
+          <div class="order-group-item">
+            <span class="ogi-icon">${icon}</span>
+            <div class="ogi-body">
+              <div class="ogi-name">${o.name}</div>
+              ${optLines ? `<div class="ogi-options">${optLines}</div>` : ''}
+              ${o.extraNote ? `<div class="ogi-note">📝 ${o.extraNote}</div>` : ''}
+            </div>
           </div>
         </div>
       </div>`;

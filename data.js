@@ -43,10 +43,10 @@ const MENU_DATA = {
       ],
       "Classic Mains": [
         { id: "lm1", name: "Beer Battered Traditional Haddock", desc: "Served with Venney's double hand cooked chips, charred lemon, tartar sauce and mushy or garden peas. (GF Available)", isFishChips: true },
-        { id: "lm2", name: "Original 8oz Burger", desc: "Served with Monterey Jack cheese, onion rings, coleslaw, tomato and lettuce. (GF Available)" },
+        { id: "lm2", name: "Original 8oz Burger", desc: "Served with Monterey Jack cheese, onion rings, coleslaw, tomato and lettuce. (GF Available)", isBurger: true },
         { id: "lm3", name: "Traditional Scampi", desc: "Served with Venney's double hand cooked chips, charred lemon, tartar sauce and mushy and garden peas. (GF Available)", isFishChips: true },
         { id: "lm4", name: "Fish Platter", desc: "Served with haddock, scampi, calamari chips and a choice of mushy or garden peas.", isFishChips: true },
-        { id: "lm5", name: "Goat's Cheeseburger", desc: "Served with pickles, red onion chutney, onion rings and coleslaw. (V)" },
+        { id: "lm5", name: "Goat's Cheeseburger", desc: "Served with pickles, red onion chutney, onion rings and coleslaw. (V)", isBurger: true },
         { id: "lm6", name: "Steak & Ale Pie", desc: "Served with chips, mushy peas and gravy." },
         { id: "lm7", name: "Beef Bourguignon", desc: "Served with dauphinoise potatoes, green beans, thyme, bacon and onion gravy. (GF Available)" },
         { id: "lm8", name: "Cumberland Pinwheel Sausage", desc: "Served with creamed mash, buttered vegetables and onion gravy." },
@@ -86,7 +86,7 @@ const MENU_DATA = {
       ],
       "Classic Mains": [
         { id: "em1", name: "Beer Battered Traditional Haddock", desc: "Served with Venney's double hand cooked chips, charred lemon, tartar sauce and mushy or garden peas. (GF Available)", isFishChips: true },
-        { id: "em2", name: "Double 4oz Blue Cheese Burger", desc: "Served with pickles, tomatoes, lettuce, onion rings, chips and coleslaw. (GF Available)" },
+        { id: "em2", name: "Double 4oz Blue Cheese Burger", desc: "Served with pickles, tomatoes, lettuce, onion rings, chips and coleslaw. (GF Available)", isBurger: true },
         { id: "em3", name: "Traditional Scampi", desc: "Served with Venney's double hand cooked chips, charred lemon, tartar sauce and mushy or garden peas. (GF Available)", isFishChips: true },
         { id: "em4", name: "Beef Wellington", desc: "Served with roasted carrots, shallots, dauphinoise potatoes chips and cherry jus." },
         { id: "em5", name: "Pan Fried Duck Breast", desc: "Served with celeriac, puree, fondant potato and a five spice jus." },
@@ -133,7 +133,7 @@ const MENU_DATA = {
     categories: {
       "Children's Menu": [
         { id: "ch1", name: "Chicken Nuggets", desc: "Served with chips and a choice of beans or peas. (GF Available)" },
-        { id: "ch2", name: "Chicken Burger", desc: "Served with chips and a choice of beans or peas. (GF Available)" },
+        { id: "ch2", name: "Chicken Burger", desc: "Served with chips and a choice of beans or peas. (GF Available)", isBurger: true },
         { id: "ch3", name: "Linguine with Beef Bolognaise", desc: "" },
         { id: "ch4", name: "Fresh Haddock Goujons", desc: "Served with chips and a choice of beans or peas. (GF Available)", isFishChips: true },
         { id: "ch5", name: "Quorn Sausage", desc: "Served with chips and a choice of beans or peas. (GF) (VE)" },

@@ -18,7 +18,7 @@
   <div id="screen-login" class="screen">
     <div class="login-container">
 
-      <div class="login-left">
+      <div class="login-top">
         <div class="login-logo">
           <h1>Venney's</h1>
           <p>at the Granby</p>
@@ -26,39 +26,42 @@
         </div>
       </div>
 
-      <div class="login-right">
-        <div class="login-card">
-          <h2>Select your name</h2>
-          <div id="user-select-list" class="user-select-list">
-            <div style="color:var(--text-dim);font-size:0.9rem;text-align:center;padding:1rem;">Loading...</div>
-          </div>
-
-          <div class="pin-section" id="pin-section">
-            <div class="pin-label">Enter PIN</div>
-            <div class="pin-dots">
-              <div class="pin-dot"></div>
-              <div class="pin-dot"></div>
-              <div class="pin-dot"></div>
-              <div class="pin-dot"></div>
-            </div>
-            <div class="pin-pad">
-              <button class="pin-key" onclick="pinPress('1')">1</button>
-              <button class="pin-key" onclick="pinPress('2')">2</button>
-              <button class="pin-key" onclick="pinPress('3')">3</button>
-              <button class="pin-key" onclick="pinPress('4')">4</button>
-              <button class="pin-key" onclick="pinPress('5')">5</button>
-              <button class="pin-key" onclick="pinPress('6')">6</button>
-              <button class="pin-key" onclick="pinPress('7')">7</button>
-              <button class="pin-key" onclick="pinPress('8')">8</button>
-              <button class="pin-key" onclick="pinPress('9')">9</button>
-              <button class="pin-key" style="visibility:hidden"></button>
-              <button class="pin-key" onclick="pinPress('0')">0</button>
-              <button class="pin-key del" onclick="pinPress('del')">⌫</button>
-            </div>
-          </div>
+      <div class="login-card">
+        <h2>Select your name</h2>
+        <div id="user-select-list" class="user-select-list">
+          <div style="color:var(--text-dim);font-size:0.9rem;text-align:center;padding:1rem;">Loading...</div>
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ PIN OVERLAY (floating popup) -->
+  <div class="pin-overlay" id="pin-overlay">
+    <div class="pin-popup">
+      <div class="pin-popup-user" id="pin-popup-user"></div>
+      <div class="pin-label">Enter PIN</div>
+      <div class="pin-dots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinPress('1')">1</button>
+        <button class="pin-key" onclick="pinPress('2')">2</button>
+        <button class="pin-key" onclick="pinPress('3')">3</button>
+        <button class="pin-key" onclick="pinPress('4')">4</button>
+        <button class="pin-key" onclick="pinPress('5')">5</button>
+        <button class="pin-key" onclick="pinPress('6')">6</button>
+        <button class="pin-key" onclick="pinPress('7')">7</button>
+        <button class="pin-key" onclick="pinPress('8')">8</button>
+        <button class="pin-key" onclick="pinPress('9')">9</button>
+        <button class="pin-key" style="visibility:hidden"></button>
+        <button class="pin-key" onclick="pinPress('0')">0</button>
+        <button class="pin-key del" onclick="pinPress('del')">⌫</button>
+      </div>
+      <button class="pin-cancel-btn" onclick="closePinOverlay()">Cancel</button>
     </div>
   </div>
 
@@ -92,13 +95,11 @@
 
     <div id="allergen-info-bar" class="allergen-info-bar"></div>
 
-    <!-- Orders fill this area -->
     <div class="table-body">
       <div class="orders-scroll">
         <div id="order-cards" class="order-cards"></div>
       </div>
 
-      <!-- Sticky bottom bar -->
       <div class="add-order-bar">
         <button class="add-order-btn" onclick="showAddOrderModal()">+ Add Order</button>
         <button class="pin-change-link" onclick="showPinChange()">Change PIN</button>
@@ -109,7 +110,6 @@
 
   <!-- ═══════════════════════════ VAULT (admin) -->
   <div id="screen-vault" class="screen">
-    <!-- Injected by renderVaultScreen() -->
   </div>
 
 </div>
