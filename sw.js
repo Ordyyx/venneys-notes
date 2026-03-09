@@ -1,5 +1,5 @@
-const CACHE_NAME = 'venneys-v1';
-const ASSETS = ['/', '/index.html', '/data.js', '/app.js', '/style.css', '/manifest.json'];
+const CACHE_NAME = 'venneys-v2';
+const ASSETS = ['/', '/index.html', '/data.js', '/app.js', '/style.css', '/manifest.json', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));

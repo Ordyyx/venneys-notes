@@ -1,10 +1,10 @@
 {
-  "name": "Venney's Order Notes",
-  "short_name": "Venneys",
+  "name": "VG Orders",
+  "short_name": "VG Orders",
   "description": "Order note-taking app for Venney's at the Granby",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1009",
+  "background_color": "#0d1a0f",
   "theme_color": "#c8973a",
   "orientation": "portrait",
   "icons": [

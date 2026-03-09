@@ -1135,7 +1135,7 @@ function checkRoute() {
 function renderVaultScreen() {
   document.getElementById('screen-vault').innerHTML = `
     <div class="app-header">
-      <h2>⚙ Admin Vault</h2>
+      <h2>⚙ VG Orders — Admin Vault</h2>
       <a href="/" style="color:var(--text-dim);font-size:0.85rem;text-decoration:none;margin-left:auto;">← Back to App</a>
     </div>
     <div class="vault-content">
