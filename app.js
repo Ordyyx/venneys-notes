@@ -1,4 +1,6 @@
 // ─── FIREBASE SETUP ─────────────────────────────────────────
+// !! REPLACE THESE VALUES with your actual Firebase project config !!
+// Find them at: Firebase Console → Project Settings → Your Apps → SDK setup
 const FIREBASE_CONFIG = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -7,6 +9,10 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "YOUR_SENDER_ID",
   appId: "YOUR_APP_ID"
 };
+
+function isConfigured() {
+  return !FIREBASE_CONFIG.apiKey.includes('YOUR_');
+}
 
 // ─── APP STATE ───────────────────────────────────────────────
 let db;
@@ -23,11 +29,27 @@ let menuLoadState = 'idle';
 
 // ─── FIREBASE INIT ───────────────────────────────────────────
 function initFirebase() {
+  if (!isConfigured()) {
+    showConfigError();
+    return;
+  }
   firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.firestore();
   loadUsers();
   listenToTables();
   loadLiveMenu();
+}
+
+function showConfigError() {
+  const el = document.getElementById('user-select-list');
+  if (el) el.innerHTML = `
+    <div style="color:#ef9a9a;font-size:0.85rem;line-height:1.7;padding:0.5rem 0;">
+      <strong style="color:var(--danger);font-size:1rem;">⚠ Firebase not configured</strong><br>
+      Open <code style="background:var(--dark3);padding:0.1rem 0.3rem;border-radius:3px;">app.js</code>
+      and replace the placeholder values at the top with your actual Firebase config.<br><br>
+      Find them at:<br>
+      <strong>Firebase Console → Project Settings → Your Apps</strong>
+    </div>`;
 }
 
 function listenToTables() {
@@ -45,9 +67,15 @@ function loadUsers() {
     renderUserList();
     if (showScreen.current === 'vault') renderVault();
   }, err => {
-    console.error('Users snapshot error:', err);
+    console.error('Firestore error:', err);
     const el = document.getElementById('user-select-list');
-    if (el) el.innerHTML = '<div style="color:var(--danger);font-size:0.85rem;text-align:center;padding:1rem;">Error loading users — check Firebase config.</div>';
+    if (el) el.innerHTML = `
+      <div style="color:#ef9a9a;font-size:0.82rem;line-height:1.6;padding:0.5rem 0;">
+        <strong style="color:var(--danger);">⚠ Database error</strong><br>
+        ${err.code === 'permission-denied'
+          ? 'Firestore rules are blocking reads. Go to Firebase Console → Firestore → Rules and publish the open rules from the README.'
+          : 'Could not connect to Firebase. Check your config values in app.js are correct.<br><br>Error: ' + err.message}
+      </div>`;
   });
 }
 
