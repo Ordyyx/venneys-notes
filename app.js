@@ -110,7 +110,11 @@ async function deleteUser(uid) {
   });
 }
 const MENU_URL = 'https://www.venneysatthegranby.co.uk/menus/';
-const CORS_PROXY = 'https://corsproxy.io/?';
+const CORS_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+  'https://api.codetabs.com/v1/proxy?quest='
+];
 const MENU_CACHE_TTL = 30 * 60 * 1000;
 
 async function loadLiveMenu() {
@@ -128,10 +132,26 @@ async function loadLiveMenu() {
   } catch(e) { /* non-fatal */ }
 
   menuLoadState = 'loading';
-  try {
-    const resp = await fetch(CORS_PROXY + encodeURIComponent(MENU_URL));
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const html = await resp.text();
+
+  // Try each proxy until one works
+  let html = null;
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const resp = await fetch(proxy + encodeURIComponent(MENU_URL), { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) continue;
+      html = await resp.text();
+      if (html && html.length > 500) {
+        console.log('[Menu] Fetched via', proxy);
+        break;
+      }
+      html = null;
+    } catch(e) {
+      console.warn('[Menu] Proxy failed:', proxy, e.message);
+      continue;
+    }
+  }
+
+  if (html) {
     const parsed = parseMenuHTML(html);
     if (parsed) {
       liveMenuData = parsed;
@@ -143,10 +163,12 @@ async function loadLiveMenu() {
       } catch(e) { /* non-fatal */ }
       console.log('[Menu] Scraped and cached from live site');
     } else {
-      throw new Error('Parse returned null');
+      console.warn('[Menu] Parse failed, using bundled data');
+      menuLoadState = 'failed';
+      liveMenuData = null;
     }
-  } catch(e) {
-    console.warn('[Menu] Fetch failed, using bundled data:', e.message);
+  } else {
+    console.warn('[Menu] All proxies failed, using bundled data');
     menuLoadState = 'failed';
     liveMenuData = null;
   }
@@ -717,21 +739,44 @@ function itemIsBurger(item) {
   return item.isBurger || /burger/i.test(item.name);
 }
 
-function itemHasCheese(item) {
-  return itemIsBurger(item) && /(blue\s*cheese|monterey|jack)/i.test(item.desc || item.name);
-}
-
 function addItem(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
   if (!item) return;
   // Items that need option selection get a sub-modal
   if (item.isFishChips) showFishChipsSubModal(item, menuKey);
   else if (item.isSteak) showSteakSubModal(item, menuKey);
-  else if (itemHasCheese(item)) showBurgerCheeseSubModal(item, menuKey);
+  else if (itemNeedsCheeseChoice(item, menuKey)) showBurgerCheeseSubModal(item, menuKey);
   else {
-    // Simple items go straight into pending — no sub-modal needed
-    addToPending(item, 'food', {}, '');
+    // All other items still get a notes prompt
+    showItemNotesSubModal(item, menuKey);
   }
+}
+
+// Evening burger gets cheese choice, lunch burger does not
+function itemNeedsCheeseChoice(item, menuKey) {
+  if (!itemIsBurger(item)) return false;
+  // Only evening menu burger gets the cheese option
+  if (menuKey === 'evening') return true;
+  return false;
+}
+
+function showItemNotesSubModal(item, menuKey) {
+  openSubModal(`
+    <h3>${item.name}</h3>
+    ${item.desc ? `<p>${item.desc}</p>` : ''}
+    <span class="modal-label">Extra notes (optional)</span>
+    <input class="modal-input" id="item-extra-note" placeholder="Any extra requests...">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmItemNotes('${item.id}','${menuKey}')">Add</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('item-extra-note')?.focus(), 100);
+}
+
+function confirmItemNotes(itemId, menuKey) {
+  const item = findMenuItem(menuKey, itemId);
+  addToPending(item, 'food', {}, document.getElementById('item-extra-note')?.value || '');
 }
 
 // ─── SUB-MODAL SYSTEM ────────────────────────────────────────
@@ -1198,10 +1243,14 @@ function renderVaultScreen() {
       </div>
       <div class="vault-section">
         <h3>Live Menu</h3>
-        <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;line-height:1.5">
+        <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;line-height:1.5">
           Menu data is automatically fetched from <strong style="color:var(--gold)">venneysatthegranby.co.uk</strong> and cached for 30 minutes.
           Any changes you make to the website menu will appear here within 30 minutes automatically.
           Use this button to force an immediate refresh.
+        </p>
+        <p style="font-size:0.8rem;margin-bottom:0.75rem;">
+          Current source: <strong style="color:${menuLoadState === 'loaded' ? 'var(--success)' : 'var(--danger)'}">
+          ${menuLoadState === 'loaded' ? '✓ Live website' : '⚠ Bundled fallback (live fetch failed)'}</strong>
         </p>
         <button class="btn-primary" onclick="forceRefreshMenu()" style="padding:0.65rem 1.2rem;">↻ Refresh Menu Now</button>
       </div>
