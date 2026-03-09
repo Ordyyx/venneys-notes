@@ -790,15 +790,20 @@ function confirmFishChipsPending(itemId, menuKey) {
 }
 
 function showSteakSubModal(item, menuKey) {
+  const STEAK_TEMPS = ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done'];
   openSubModal(`
     <h3>${item.name}</h3>
     <p>${item.desc}</p>
+    <span class="modal-label">How would they like it cooked?</span>
+    <div class="modal-options">
+      ${STEAK_TEMPS.map(t => `<button class="opt-btn" data-group="temp" data-val="${t}" onclick="selectOpt(this)">${t}</button>`).join('')}
+    </div>
     <span class="modal-label">Steak Sauce</span>
     <div class="modal-options">
       ${STEAK_SAUCES.map(s => `<button class="opt-btn" data-group="sauce" data-val="${s}" onclick="selectOpt(this)">${s}</button>`).join('')}
     </div>
     <span class="modal-label">Extra notes (optional)</span>
-    <input class="modal-input" id="item-extra-note" placeholder="e.g. well done, rare...">
+    <input class="modal-input" id="item-extra-note" placeholder="Any other requests...">
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
       <button class="btn-primary" onclick="confirmSteakPending('${item.id}','${menuKey}')">Add</button>
@@ -808,8 +813,12 @@ function showSteakSubModal(item, menuKey) {
 
 function confirmSteakPending(itemId, menuKey) {
   const item = findMenuItem(menuKey, itemId);
+  const opts = {};
+  const tempEl = document.querySelector('#sub-modal-overlay .opt-btn.selected[data-group="temp"]');
   const sauceEl = document.querySelector('#sub-modal-overlay .opt-btn.selected[data-group="sauce"]');
-  addToPending(item, 'food', sauceEl ? { sauce: sauceEl.dataset.val } : {}, document.getElementById('item-extra-note')?.value || '');
+  if (tempEl) opts.temp = tempEl.dataset.val;
+  if (sauceEl) opts.sauce = sauceEl.dataset.val;
+  addToPending(item, 'food', opts, document.getElementById('item-extra-note')?.value || '');
 }
 
 function showBurgerCheeseSubModal(item, menuKey) {
