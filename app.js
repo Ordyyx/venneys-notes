@@ -44,6 +44,10 @@ function loadUsers() {
     snap.forEach(doc => { usersData[doc.id] = { id: doc.id, ...doc.data() }; });
     renderUserList();
     if (showScreen.current === 'vault') renderVault();
+  }, err => {
+    console.error('Users snapshot error:', err);
+    const el = document.getElementById('user-select-list');
+    if (el) el.innerHTML = '<div style="color:var(--danger);font-size:0.85rem;text-align:center;padding:1rem;">Error loading users — check Firebase config.</div>';
   });
 }
 
@@ -223,7 +227,7 @@ function goTo(name) {
 // ─── AUTH ────────────────────────────────────────────────────
 function renderUserList() {
   const el = document.getElementById('user-select-list');
-  if (!el) return;
+  if (!el) return; // screen not visible yet, snapshot will re-fire
   el.innerHTML = '';
   const users = Object.values(usersData).sort((a,b) => a.name.localeCompare(b.name));
   if (!users.length) {
@@ -871,8 +875,8 @@ function checkRoute() {
     renderVaultScreen();
     goTo('vault');
   } else {
-    initFirebase();
     goTo('login');
+    initFirebase();
   }
 }
 
@@ -908,6 +912,6 @@ function renderVaultScreen() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
   checkRoute();
 });
