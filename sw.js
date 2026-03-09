@@ -1,4 +1,4 @@
-const CACHE_NAME = 'venneys-v11';
+const CACHE_NAME = 'venneys-v15';
 const BASE = '/venneys-notes/';
 const ASSETS = ['index.html', 'data.js', 'app.js', 'style.css', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'].map(f => BASE + f);
 ASSETS.push(BASE);

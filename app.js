@@ -93,10 +93,100 @@ async function saveMenuToFirebase(menuData) {
   await db.collection('_data').doc('menu').set(menuData);
 }
 
-// Push bundled MENU_DATA to Firebase (one-time bootstrap or sync)
+// Smart sync — updates item data (mods, flavours, flags, desc) from bundled
+// without changing your organisation (section order, category order, item order).
+// Also adds any new sections/categories/items that don't exist yet.
 async function pushBundledMenuToFirebase() {
-  await saveMenuToFirebase(MENU_DATA);
-  toast('✓ Bundled menu pushed to Firebase');
+  const current = getEditableMenu();
+  const bundled = JSON.parse(JSON.stringify(MENU_DATA));
+  const hasExisting = Object.keys(current).length > 0;
+
+  if (!hasExisting) {
+    // No menu in Firebase yet — just push the whole thing
+    await saveMenuToFirebase(bundled);
+    toast('✓ Menu synced to Firebase');
+    return;
+  }
+
+  // Smart merge
+  let added = 0, updated = 0;
+
+  Object.keys(bundled).forEach(sectionKey => {
+    if (!current[sectionKey]) {
+      // New section — add it
+      current[sectionKey] = bundled[sectionKey];
+      added++;
+      return;
+    }
+    // Update hours if not set
+    if (!current[sectionKey].hours && bundled[sectionKey].hours) {
+      current[sectionKey].hours = bundled[sectionKey].hours;
+    }
+
+    const bCats = bundled[sectionKey].categories || {};
+    const cCats = current[sectionKey].categories || {};
+
+    Object.keys(bCats).forEach(catName => {
+      if (!cCats[catName]) {
+        // New category — add it
+        cCats[catName] = bCats[catName];
+        added++;
+        return;
+      }
+
+      // Merge items within existing category
+      const bCat = bCats[catName];
+      const cCat = cCats[catName];
+
+      if (bCat.subcategories && cCat.subcategories) {
+        // Both have subcategories — merge each
+        Object.keys(bCat.subcategories).forEach(subName => {
+          if (!cCat.subcategories[subName]) {
+            cCat.subcategories[subName] = bCat.subcategories[subName];
+            added++;
+          } else {
+            updated += mergeItems(cCat.subcategories[subName], bCat.subcategories[subName]);
+          }
+        });
+      } else if (bCat.items && cCat.items) {
+        updated += mergeItems(cCat.items, bCat.items);
+      } else if (bCat.items && Array.isArray(cCat)) {
+        // Old format — upgrade
+        updated += mergeItems(cCat, bCat.items);
+      }
+    });
+    current[sectionKey].categories = cCats;
+  });
+
+  await saveMenuToFirebase(current);
+  toast(`✓ Synced — ${added} new, ${updated} updated. Order preserved.`);
+}
+
+// Merge bundled items into existing items list by ID — updates data, adds missing, preserves order
+function mergeItems(existing, bundled) {
+  let count = 0;
+  const existingById = {};
+  existing.forEach(item => { if (item.id) existingById[item.id] = item; });
+
+  bundled.forEach(bItem => {
+    const eItem = existingById[bItem.id];
+    if (eItem) {
+      // Update fields without changing position
+      let changed = false;
+      ['desc','mods','flavours','isFishChips','isSteak','isBurger'].forEach(field => {
+        if (bItem[field] !== undefined && JSON.stringify(eItem[field]) !== JSON.stringify(bItem[field])) {
+          eItem[field] = bItem[field];
+          changed = true;
+        }
+      });
+      if (changed) count++;
+    } else {
+      // New item — add to end
+      existing.push(bItem);
+      count++;
+    }
+  });
+  return count;
 }
 
 // ─── SINGLE-DOC WRITE HELPERS ────────────────────────────────
@@ -365,15 +455,30 @@ function renderTableDetail(tId) {
 }
 
 // ─── TIME-BASED MENU AVAILABILITY ────────────────────────────
+let testMode = false;
+
+function toggleTestMode() {
+  testMode = !testMode;
+  const btn = document.getElementById('test-mode-btn');
+  if (btn) {
+    btn.textContent = testMode ? '🧪 Test Mode ON' : '🧪 Test Mode';
+    btn.style.background = testMode ? 'rgba(76,175,80,0.2)' : '';
+    btn.style.borderColor = testMode ? 'var(--success)' : '';
+    btn.style.color = testMode ? 'var(--success)' : '';
+  }
+  toast(testMode ? 'Test mode ON — all menus visible' : 'Test mode OFF — time-based filtering restored');
+}
+
 function getActiveMenus() {
+  const menu = getMenuData();
+  if (testMode) return Object.keys(menu);
   const now = new Date();
   const day = now.getDay();
   const mins = now.getHours()*60 + now.getMinutes();
-  const menu = getMenuData();
   const active = [];
   Object.keys(menu).forEach(key => {
     const h = menu[key].hours;
-    if (!h) { active.push(key); return; } // null = always available
+    if (!h) { active.push(key); return; }
     const schedules = h.schedules || [];
     for (const s of schedules) {
       if (s.days.includes(day) && mins >= s.start && mins <= s.end) {
@@ -646,6 +751,7 @@ function addItem(itemId, menuKey) {
   else if (item.mods === 'draught') showDraughtSubModal(item, menuKey);
   else if (item.mods === 'spirit') showSpiritSubModal(item, menuKey);
   else if (item.mods === 'softdrink') showSoftDrinkSubModal(item, menuKey);
+  else if (item.mods === 'tap_soda') showTapSodaSubModal(item, menuKey);
   else if (item.mods === 'flavour_ice') showFlavourIceSubModal(item, menuKey);
   else if (item.mods === 'flavour') showFlavourSubModal(item, menuKey);
   else if (item.mods === 'cordial') showCordialSubModal(item, menuKey);
@@ -677,9 +783,15 @@ function showDraughtSubModal(item, menuKey) {
 }
 
 function showSpiritSubModal(item, menuKey) {
+  const flavours = item.flavours || [];
   openSubModal(`
     <h3>${item.name}</h3>
     ${item.desc ? `<p>${item.desc}</p>` : ''}
+    ${flavours.length ? `
+      <span class="modal-label">Variant</span>
+      <div class="modal-options">
+        ${flavours.map(f => `<button class="opt-btn" data-group="flavour" data-val="${f}" onclick="selectOpt(this)">${f}</button>`).join('')}
+      </div>` : ''}
     <span class="modal-label">Measure</span>
     <div class="modal-options">
       <button class="opt-btn" data-group="measure" data-val="Single" onclick="selectOpt(this)">Single</button>
@@ -702,6 +814,29 @@ function showSpiritSubModal(item, menuKey) {
 function showSoftDrinkSubModal(item, menuKey) {
   openSubModal(`
     <h3>${item.name}</h3>
+    <span class="modal-label">Ice</span>
+    <div class="modal-options">
+      <button class="opt-btn" data-group="ice" data-val="Ice" onclick="selectOpt(this)">Ice</button>
+      <button class="opt-btn" data-group="ice" data-val="No Ice" onclick="selectOpt(this)">No Ice</button>
+    </div>
+    <span class="modal-label">Extra notes (optional)</span>
+    <input class="modal-input" id="item-extra-note" placeholder="Any extra requests...">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeSubModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmDrinkMods('${item.id}','${menuKey}')">Add</button>
+    </div>
+  `);
+}
+
+function showTapSodaSubModal(item, menuKey) {
+  openSubModal(`
+    <h3>${item.name}</h3>
+    <span class="modal-label">Size</span>
+    <div class="modal-options">
+      <button class="opt-btn" data-group="size" data-val="Pint" onclick="selectOpt(this)">Pint</button>
+      <button class="opt-btn" data-group="size" data-val="Regular" onclick="selectOpt(this)">Regular</button>
+      <button class="opt-btn" data-group="size" data-val="Dash" onclick="selectOpt(this)">Dash</button>
+    </div>
     <span class="modal-label">Ice</span>
     <div class="modal-options">
       <button class="opt-btn" data-group="ice" data-val="Ice" onclick="selectOpt(this)">Ice</button>
@@ -1323,10 +1458,10 @@ function renderVaultScreen() {
         <h3>Menu Editor</h3>
         <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;line-height:1.5">
           Edit the food menu below. Changes are saved to Firebase and sync to all devices instantly.
-          Use "Sync from Bundled" to reset the menu to the built-in default for major menu changes.
+          "Smart Sync" updates item details (modifiers, flags, descriptions) and adds new items from the bundled menu without changing your category or item order.
         </p>
         <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-          <button class="btn-primary" onclick="pushBundledMenuToFirebase()" style="flex:none;padding:0.55rem 1rem;font-size:0.85rem;">↻ Sync from Bundled Menu</button>
+          <button class="btn-primary" onclick="pushBundledMenuToFirebase()" style="flex:none;padding:0.55rem 1rem;font-size:0.85rem;">↻ Smart Sync from Bundled</button>
         </div>
         <div id="menu-editor"></div>
       </div>
