@@ -117,13 +117,12 @@ const MENU_DATA = {
     hours: null, // Always available
     categories: {
       "Desserts": [
-        { id: "ds1", name: "Coconut Pomegranate Mousse", desc: "Served with shortbread." },
-        { id: "ds2", name: "Raspberry & Lemon Posset", desc: "Served with shortbread and raspberry dust. (V)" },
-        { id: "ds3", name: "Venney's Cheesecake", desc: "Raspberry and white chocolate. (V)" },
-        { id: "ds4", name: "Venney's Pavlova", desc: "Ask the team about our Pavlova flavour of the day! (V)" },
-        { id: "ds5", name: "Salted Honey Panna Cotta", desc: "Served with orange syrup and blood orange segments." },
-        { id: "ds6", name: "Treacle Tart", desc: "Served with orange syrup and custard. (V)" },
-        { id: "ds7", name: "Dark Chocolate Fondant", desc: "Served with strawberry sauce and cherry chocolate ice cream. (V)" },
+        { id: "ds1", name: "White Chocolate and Blueberry Blondie", desc: "Served with strawberry coulis and Strawberry Sensation ice cream." },
+        { id: "ds2", name: "Venney's Cheesecake", desc: "Ask the team about our Cheesecake flavour of the day! (V)" },
+        { id: "ds3", name: "Venney's Pavlova", desc: "Ask the team about our Pavlova flavour of the day! (V)" },
+        { id: "ds4", name: "Carrot Cake", desc: "" },
+        { id: "ds5", name: "Sticky Toffee Pudding", desc: "Served with butterscotch sauce and vanilla ice cream. (V)" },
+        { id: "ds6", name: "Baked Alaska", desc: "Served with Wild Berry." },
       ]
     }
   },
