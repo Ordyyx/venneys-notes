@@ -313,6 +313,43 @@ const MENUS = {
         },
         "Baked Alaska": {
           note: "Served with wild berry"
+        },
+        "Ice Cream (1 Scoop)": {
+          choices: {
+            "Flavour": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
+          }
+        },
+        "Ice Cream (2 Scoops)": {
+          choices: {
+          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
+          }
+        },
+        "Ice Cream (3 Scoops)": {
+          choices: {
+          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 3": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
+          }
+        },
+        "Ice Cream (4 Scoops)": {
+          choices: {
+          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 3": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
+          "Flavour 4": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
+          }
+        },
+        "Sorbet (1 Scoop)": {
+          choices: {
+          "Flavour": ["Raspberry", "Mango"]
+          }
+        },
+        "Sorbet (2 Scoops)": {
+          choices: {
+          "Flavour 1": ["Raspberry", "Mango"],
+          "Flavour 2": ["Raspberry", "Mango"]
+          }
         }
       }
     }
@@ -325,26 +362,26 @@ const MENUS = {
         "Chicken Nuggets": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Beans", "Peas"]
+            "Side": ["Beans", "Garden Peas"]
           }
         },
         "Chicken Burger": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Beans", "Peas"]
+            "Side": ["Beans", "Garden Peas"]
           }
         },
         "Linguine with Beef Bolognaise": {},
         "Fresh Haddock Goujons": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Garden Peas", "Mushy Peas", "Beans"]
+            "Side": ["Garden Peas", "Beans"]
           }
         },
         "Quorn Sausage": {
           note: "Served with chips (GF)(VE)",
           choices: {
-            "Side": ["Beans", "Peas"]
+            "Side": ["Beans", "Garden Peas"]
           }
         }
       }
