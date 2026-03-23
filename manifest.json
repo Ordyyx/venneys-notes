@@ -4,9 +4,9 @@
   "description": "Order note-taking app for Venney's at the Granby",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d1a0f",
-  "theme_color": "#c8973a",
-  "orientation": "portrait",
+  "background_color": "#111113",
+  "theme_color": "#c9a24e",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
