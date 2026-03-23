@@ -95,6 +95,8 @@ const MENU_DATA = {
         { id: "em8", name: "Sirloin Steak", desc: "Served with flat mushroom, tomato, handcut chips and salad. (GF)", isSteak: true },
         { id: "em9", name: "Ribeye Steak", desc: "Served with flat mushroom, tomato, handcut chips and salad. (GF)", isSteak: true },
         { id: "em10", name: "Fillet Steak", desc: "Served with flat mushroom, tomato, handcut chips and salad. (GF)", isSteak: true },
+        { id: "em11", name: "Beef Bouginon", desc: ""},
+        { id: "em12", name: "Steak & Ale Pie", desc: ""}
       ],
       "Sides": [
         { id: "esi1", name: "French Fries", desc: "" },

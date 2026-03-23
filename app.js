@@ -874,6 +874,8 @@ function showDrinkSubModal() {
       <button class="opt-btn" data-group="size" data-val="Half Pint" onclick="selectOpt(this)">Half Pint</button>
       <button class="opt-btn" data-group="size" data-val="Pint" onclick="selectOpt(this)">Pint</button>
       <button class="opt-btn selected" data-group="size" data-val="Regular" onclick="selectOpt(this)">Regular</button>
+      <button class="opt-btn" data-group="size" data-val="175ml" onclick="selectOpt(this)">175ml</button>
+      <button class="opt-btn" data-group="size" data-val="250ml" onclick="selectOpt(this)">250ml</button>
     </div>
     <div class="toggle-row">
       <label class="toggle-switch">
