@@ -205,7 +205,8 @@ const MENUS = {
         "Beer Battered Traditional Haddock": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Peas": ["Mushy Peas", "Garden Peas"]
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Tartar": ["Tartar Sauce", "No Tartar Sauce"]
           }
         },
         "Double 4oz Cheese Burger": {
@@ -217,7 +218,8 @@ const MENUS = {
         "Traditional Scampi": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Peas": ["Mushy Peas", "Garden Peas"]
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Tartar": ["Tartar Sauce", "No Tartar Sauce"]
           }
         },
         "Beef Bourguignon": {
