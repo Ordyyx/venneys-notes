@@ -103,7 +103,7 @@ const MENUS = {
         "Beer Battered Traditional Haddock": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -115,7 +115,7 @@ const MENUS = {
         "Traditional Scampi": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
            choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -124,7 +124,7 @@ const MENUS = {
         "Fish Platter": {
           note: "Haddock, scampi, calamari, chips",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -151,21 +151,21 @@ const MENUS = {
         "Sirloin Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Ribeye Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Fillet Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         }
@@ -214,7 +214,7 @@ const MENUS = {
         "Beer Battered Traditional Haddock": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -229,7 +229,7 @@ const MENUS = {
         "Traditional Scampi": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -259,21 +259,21 @@ const MENUS = {
         "Sirloin Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Ribeye Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Fillet Steak": {
           note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
-            "Cook": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
+            "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         }
@@ -362,26 +362,26 @@ const MENUS = {
         "Chicken Nuggets": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Beans", "Garden Peas"]
+            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
           }
         },
         "Chicken Burger": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Beans", "Garden Peas"]
+            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
           }
         },
         "Linguine with Beef Bolognaise": {},
         "Fresh Haddock Goujons": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Garden Peas", "Beans"]
+            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
           }
         },
         "Quorn Sausage": {
           note: "Served with chips (GF)(VE)",
           choices: {
-            "Side": ["Beans", "Garden Peas"]
+            "Side": ["Beans", "Garden Peas", "Mushy Peas"],
           }
         }
       }
@@ -423,7 +423,7 @@ const MENUS = {
         "Traditional Haddock": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -432,7 +432,7 @@ const MENUS = {
         "1/2 Traditional Haddock": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -441,7 +441,7 @@ const MENUS = {
         "Scampi": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -450,7 +450,7 @@ const MENUS = {
         "1/2 Scampi": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Cooked": ["Battered", "Grilled"],
+            "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
             "Tartar": ["Tartar", "No Tartar"]
@@ -463,6 +463,43 @@ const MENUS = {
         "Cauliflower Cheese": {},
         "Roast Potatoes": {},
         "Buttered Vegetables": {}
+      }
+    }
+  },
+  "Drinks": {
+    icon: "🍷",
+    sections: {
+      "Draught": {
+        "Carling": {
+          choices: {
+            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
+          }
+        },
+        "Staropramen": {
+          choices: {
+            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
+          }
+        },
+        "Madri": {
+          choices: {
+            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
+          }
+        },
+        "Guinness": {
+          choices: {
+            "Type": ["Pint", "Half Pint"]
+          }
+        },
+        "Worthingtons": {
+          choices: {
+            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
+          }
+        },
+        "Alpacalypse": {
+          choices: {
+            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
+          }
+        }
       }
     }
   }
