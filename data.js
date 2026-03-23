@@ -125,8 +125,8 @@ const MENU_DATA = {
         { id: "ds4", name: "Carrot Cake", desc: "" },
         { id: "ds5", name: "Sticky Toffee Pudding", desc: "Served with butterscotch sauce and vanilla ice cream. (V)" },
         { id: "ds6", name: "Baked Alaska", desc: "Served with Wild Berry." },
-        { id: "ds7", name: "Ice Cream", desc: "" },
-        { id: "ds8", name: "Sorbet", desc: ""}
+        { id: "ds7", name: "Ice Cream", desc: "Add a Misc. Food for Flavours/Scoops" },
+        { id: "ds8", name: "Sorbet", desc: "Add a Misc. Food for Flavours/Scoops"}
       ]
     }
   },
