@@ -103,7 +103,10 @@ const MENUS = {
         "Beer Battered Traditional Haddock": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
-            "Peas": ["Mushy Peas", "Garden Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Original 8oz Burger": {
@@ -111,14 +114,20 @@ const MENUS = {
         },
         "Traditional Scampi": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
-          choices: {
-            "Peas": ["Mushy Peas", "Garden Peas"]
+           choices: {
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Fish Platter": {
           note: "Haddock, scampi, calamari, chips",
           choices: {
-            "Peas": ["Mushy Peas", "Garden Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Goat's Cheese Burger": {
@@ -205,8 +214,10 @@ const MENUS = {
         "Beer Battered Traditional Haddock": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
+            "Cooked": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
-            "Tartar": ["Tartar Sauce", "No Tartar Sauce"]
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Double 4oz Cheese Burger": {
@@ -218,8 +229,10 @@ const MENUS = {
         "Traditional Scampi": {
           note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
+            "Cooked": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
-            "Tartar": ["Tartar Sauce", "No Tartar Sauce"]
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Beef Bourguignon": {
@@ -325,7 +338,7 @@ const MENUS = {
         "Fresh Haddock Goujons": {
           note: "Served with chips (GF Available)",
           choices: {
-            "Side": ["Beans", "Peas"]
+            "Side": ["Garden Peas", "Mushy Peas", "Beans"]
           }
         },
         "Quorn Sausage": {
@@ -373,25 +386,37 @@ const MENUS = {
         "Traditional Haddock": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Peas": ["Garden Peas", "Mushy Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "1/2 Traditional Haddock": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Peas": ["Garden Peas", "Mushy Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "Scampi": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Peas": ["Garden Peas", "Mushy Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         },
         "1/2 Scampi": {
           note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
-            "Peas": ["Garden Peas", "Mushy Peas"]
+            "Cooked": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
           }
         }
       },
