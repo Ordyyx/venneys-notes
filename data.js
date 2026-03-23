@@ -134,9 +134,9 @@ const MENU_DATA = {
     categories: {
       "Children's Menu": [
         { id: "ch1", name: "Chicken Nuggets", desc: "Served with chips and a choice of beans or peas. (GF Available)" },
-        { id: "ch2", name: "Chicken Burger", desc: "Served with chips and a choice of beans or peas. (GF Available)", isBurger: true },
+        { id: "ch2", name: "Chicken Burger", desc: "Served with chips and a choice of beans or peas. (GF Available)" },
         { id: "ch3", name: "Linguine with Beef Bolognaise", desc: "" },
-        { id: "ch4", name: "Fresh Haddock Goujons", desc: "Served with chips and a choice of beans or peas. (GF Available)", isFishChips: true },
+        { id: "ch4", name: "Fresh Haddock Goujons", desc: "Served with chips and a choice of beans or peas. (GF Available)" },
         { id: "ch5", name: "Quorn Sausage", desc: "Served with chips and a choice of beans or peas. (GF) (VE)" },
       ]
     }
