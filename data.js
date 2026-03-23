@@ -1,107 +1,655 @@
 const MENUS = {
+  "Drinks": {
+    icon: "🍷",
+    availability: {
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      start: "09:00",
+      end: "23:00"
+    },
+    sections: {
+      "Soft Drinks": {
+        subsections: {
+          "Common": {
+            "Pepsi": {
+              choices: {
+                "Size": ["Regular", "Pint"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Pepsi Max": {
+              choices: {
+                "Size": ["Regular", "Pint"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Tango": {
+              choices: {
+                "Size": ["Regular", "Pint"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Lemonade": {
+              choices: {
+                "Size": ["Regular", "Pint"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Cordial": {
+              choices: {
+                "Flavour": ["Lime", "Blackcurrant", "Orange"],
+                "Mixer": ["Water", "Soda", "Lemonade"],
+                "Size": ["Pint", "Half Pint"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Fresh Juice": {
+              choices: {
+                "Flavour": ["Orange", "Cranberry", "Apple", "Pineapple"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            }
+          },
+          "Bottles": {
+            "J2O": {
+              choices: {
+                "Flavour": ["Apple & Raspberry", "Orange & Passionfruit", "Apple & Mango", "Dragon Berry"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Coca-Cola": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Coke Zero": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Diet Coke": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Britvic Orange": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Britvic Lemon": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Appletiser": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Harrowgate": {
+              choices: {
+                "Type": ["Still", "Sparkling"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Fruit Shoot": {
+              choices: {
+                "Flavour": ["Summer Fruits", "Orange & Apple", "Apple & Blackcurrant"]
+              }
+            }
+          },
+          "London Essence": {
+            "Tonic": {},
+            "London Essence Lemonade": {},
+            "Ginger Ale": {},
+            "White Peach": {},
+            "Raspberry & Rose": {},
+            "Orange & Elderflower": {},
+          }
+        }
+      },
+      "Draught": {
+        "Carling": {
+          choices: { "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"] }
+        },
+        "Staropramen": {
+          choices: { "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"] }
+        },
+        "Madri": {
+          choices: { "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"] }
+        },
+        "Guinness": {
+          choices: { "Type": ["Pint", "Half Pint"] }
+        },
+        "Worthingtons": {
+          choices: { "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"] }
+        },
+        "Alpacalypse": {
+          choices: { "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"] }
+        }
+      },
+      "Bottles": {
+        "Hawkstone Hedgerow": {},
+        "Hawkstone Cider": {},
+        "Hawkstone Lager": {},
+        "Hawkstone Session": {},
+        "Hawkstone Pils": {},
+        "Desperados": {},
+        "Rekorderlig": {
+          choices: {
+            "Flavour": ["Strawberry & Lime", "Wild Berries"]
+          }
+        },
+        "Smirnoff Ice": {},
+        "Peroni": {
+          choices: {
+            "Type": ["Normal", "Gluten-Free"]
+          }
+        },
+        "Atlantic Pale Ale": {},
+        "WKD Blue": {},
+        "Doom Bar": {},
+        "Timothy Taylor's": {},
+        "Budweiser": {},
+      },
+      "Hot Drinks": {
+        "Espresso": {},
+        "Black Americano": {},
+        "White Coffee": {},
+        "Flat White": {},
+        "Cappuccino": {},
+        "Latte": {},
+        "Mocha": {},
+        "Chocolatte": {},
+        "Pot of Tea": {
+          choices: {"Amount": ["1 Person", "2 People"]}
+        },
+        "Flavoured Tea": {
+          choices: {
+            "Flavour": ["Earl Grey", "Green Tea", "Camomile", "Peppermint"],
+            "Amount": ["1 Person", "2 People"]
+          }
+        },
+        "Hot Chocolate": {},
+        "Jug of Cream": {},
+        "Jug of Milk": {},
+        "Syrup": {
+          choices: {
+            "Flavour": ["Hazelnut", "Vanilla", "Caramel", "Coconut"]
+          }
+        }
+      },
+      "Spirits": {
+        subsections: {
+          "Vodka": {
+            "Smirnoff Red": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Smirnoff Mango & Passionfruit": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Absolut": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Absolut Vanilla": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Absolut Citron": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Hawkstone Vodka": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            }
+          },
+          "Gin": {
+            "Hakwstone Gin": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Burleigh": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Hendricks": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Tanqueray Dry": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Tanqueray Seville": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Bombay Sapphire": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Chase Marmalade": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "WN Raspberry": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "WN Ginger & Rhubarb": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "WN Black Cherry": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Gordon's": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Gordon's Pink": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Gordon's Lemon": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+            "Gordon's Sloe": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
+                "Ice": ["Ice", "No Ice"]
+              }
+            },
+          },
+          "Rum": {
+            "Bumbu": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Kraken": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Twin Fin": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Captain Morgan's Tiki": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Captain Morgan's": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Captain Morgan's Dark": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Bacardi": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Malibu": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+          },
+          "Whisky": {
+            "Isle of Jura": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Naked Grouse": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Monkey Shoulder": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Jameson": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Bell's": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Jack Daniel's": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Jack Daniel's Honey": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+            "Southern Comfort": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade"],
+                "Ice": ["Ice", "No Ice"]                
+              }
+            },
+          },
+          "General Spirits": {
+            "Archers": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },
+            "Tia Maria": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },
+            "Baileys": {
+              choices: {
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },
+            "Disaronno": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },            
+            "Martini": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },            
+            "Limoncello": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },            
+            "Pimms": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },            
+            "Jagermeister": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }              
+            },            
+          },
+          "Shots": {
+            "Tequila": {},
+            "Tequila Rose": {},
+            "Sourz": {
+              choices: {
+                "Flavour": ["Raspberry", "Strawberry"]
+              }
+            },
+            "Sambuca": {
+              choices:{
+                "Flavour": ["Black", "Cherry"]
+              }
+            }
+          },
+          "Brandy": {
+            "Martel Cognac": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }                 
+            },
+            "Three Barrels": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }                 
+            },
+            "Cherry Brandy": {
+              choices: {
+                "Measure": ["Single", "Double"],
+                "Mixer": ["Pepsi", "Pepsi Max", "Lemonade", "Tango"],
+                "Ice": ["Ice", "No Ice"]                
+              }                 
+            },
+          }
+        }
+      },
+      "Cocktails": {
+        "Pornstar Martini": {},
+        "Raspberry Cola Cube": {},
+        "Espresso Martini": {},
+        "Aperol Spritz": {},
+        "Glitter Bomb": {},
+        "Pina Colada": {},
+        "Sex on the Beach": {},
+        "Mojito": {
+          choices: {
+            "Intensity": ["Sweet", "Dry"]
+          }
+        },
+        "Passionfruit Mojito": {
+          choices: {
+            "Intensity": ["Sweet", "Dry"]
+          }
+        }
+      },
+      "Mocktails 🔞": {
+        "Oceana Colada": {},
+        "Naked Pornstar": {},
+        "Nojito": {
+          choices: {
+            "Intensity": [ "Sweet", "Dry"]
+          }
+        },
+        "Passionfruit Nojito": {
+          choices: {
+            "Intensity": ["Sweet", "Dry"]
+          }
+        }
+      },
+      "Kidtails": {
+        "Candy Colada": {},
+        "Berry Delight": {},
+        "Blue Tornado": {}
+      },
+      "Non-Alcoholic": {
+        "Doom Bar 0%": {},
+        "Madri 0%": {},
+        "Guinness 0%": {},
+        "Peroni 0%": {},
+        "Corona Cero": {},
+        "Kopparberg 0%": {
+          choices: {
+            "Flavour": ["Pear", "Mixed Berries"]
+          }
+        },
+      }
+    }
+  },
 
   "Breakfast": {
     icon: "🍳",
+    availability: {
+      days: ["Sat", "Sun"],
+      start: "09:00",
+      end: "11:30"
+    },
     sections: {
       "Main Bites": {
         "Venney's Large Breakfast": {
-          note: "2 bacon, 2 sausages, 2 eggs, tater tots, tomatoes, mushrooms, beans, toast (GF Available)",
-          choices: {
-            "Eggs": ["Fried", "Scrambled", "Poached"]
-          }
+          choices: { "Eggs": ["Fried", "Scrambled", "Poached"] }
         },
         "Venney's Small Breakfast": {
-          note: "Bacon, sausage, egg, tater tots, tomatoes, mushrooms, beans, toast (GF Available)",
-          choices: {
-            "Eggs": ["Fried", "Scrambled", "Poached"]
-          }
+          choices: { "Eggs": ["Fried", "Scrambled", "Poached"] }
         },
-        "Venney's Vegan Breakfast": {
-          note: "2 Quorn sausages, tater tots, avocado, tomatoes, mushrooms, beans, toast (GF, VE)"
-        },
+        "Venney's Vegan Breakfast": {},
         "Venney's Vegetarian Breakfast": {
-          note: "2 Quorn sausages, 2 eggs, tater tots, halloumi, tomatoes, mushrooms, beans, toast (GF, V)",
-          choices: {
-            "Eggs": ["Fried", "Scrambled", "Poached"]
-          }
+          choices: { "Eggs": ["Fried", "Scrambled", "Poached"] }
         },
-        "Eggs Benedict": {
-          note: "Muffin topped with ham, poached eggs and hollandaise sauce"
-        },
+        "Eggs Benedict": {},
         "Eggs on Toast": {
-          note: "On fresh bread (V)",
-          choices: {
-            "Eggs": ["Poached", "Scrambled", "Fried"]
-          }
+          choices: { "Eggs": ["Poached", "Scrambled", "Fried"] }
         },
-        "Spiced Avocado & Egg Muffins": {
-          note: "Poached eggs and avocado on breakfast muffins (V)"
-        },
-        "Belgium Waffle": {
-          note: "Fresh seasonal fruit, maple syrup and chocolate sauce (V)"
-        },
-        "Sausage Bun": {
-          note: "Sausage in a fresh bun (V and VE Available)"
-        },
-        "Bacon Bun": {
-          note: "Bacon in a bun"
-        },
+        "Spiced Avocado & Egg Muffins": {},
+        "Belgium Waffle": {},
+        "Sausage Bun": {},
+        "Bacon Bun": {},
         "Egg Bun": {
-          note: "Egg in a bun (V)",
-          choices: {
-            "Eggs": ["Fried", "Scrambled", "Poached"]
-          }
+          choices: { "Eggs": ["Fried", "Scrambled", "Poached"] }
         },
-        "Breakfast Bun": {
-          note: "Sausage, bacon, egg and tater tots in a bun"
-        },
-        "Greek Yoghurt with Granola": {
-          note: "Fresh seasonal fruit and honey (V)"
-        }
+        "Breakfast Bun": {},
+        "Greek Yoghurt with Granola": {}
       },
       "Smoothies": {
-        "Avo-Go-Go": {
-          note: "Spinach, broccoli, avocado, coconut, mango, ginger & lime"
-        },
-        "Pash-n-shoot": {
-          note: "Passionfruit, pineapple & mango"
-        },
-        "The Big 4": {
-          note: "Strawberry, mango, pineapple and kiwi"
-        },
-        "Coco Loco": {
-          note: "Mango, coconut, lime, pineapple and mint"
-        }
+        "Avo-Go-Go": {},
+        "Pash-n-shoot": {},
+        "The Big 4": {},
+        "Coco Loco": {}
       }
     }
   },
 
   "Lunch": {
     icon: "☀️",
+    availability: {
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      start: "12:00",
+      end: "16:00"
+    },
     sections: {
       "Starters": {
-        "Smoked Trout": {
-          note: "Citrus and dill mayonnaise with a Yorkshire pudding"
-        },
-        "Breakfast Scotch Egg": {
-          note: "Tomato ketchup, smoked bacon and potato rösti (GF Available)"
-        },
-        "Salt Baked Rainbow Beetroot": {
-          note: "Goats cheese, honey mousse and candied walnuts (V)(GF)"
-        },
-        "Pan Fried Garlic Mushroom": {
-          note: "Crispy bruschetta, pesto and parmesan (V)(GF)"
-        },
+        "Smoked Trout": {},
+        "Breakfast Scotch Egg": {},
+        "Salt Baked Rainbow Beetroot": {},
+        "Pan Fried Garlic Mushroom": {},
         "Soup of the Day": {
-          note: "Ask team for today's soup (GF Available)",
-          choices: {
-            "Bread": ["White Roll", "Granary Roll"]
-          }
+          choices: { "Bread": ["White Roll", "Granary Roll"] }
         }
       },
       "Mains": {
         "Beer Battered Traditional Haddock": {
-          note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -109,12 +657,9 @@ const MENUS = {
             "Tartar": ["Tartar", "No Tartar"]
           }
         },
-        "Original 8oz Burger": {
-          note: "Monterey jack cheese, onion rings, coleslaw, tomato, pickles, lettuce (GF Available)"
-        },
+        "Original 8oz Burger": {},
         "Traditional Scampi": {
-          note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
-           choices: {
+          choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
             "Chip": ["Chips", "Fries"],
@@ -122,7 +667,6 @@ const MENUS = {
           }
         },
         "Fish Platter": {
-          note: "Haddock, scampi, calamari, chips",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -130,40 +674,25 @@ const MENUS = {
             "Tartar": ["Tartar", "No Tartar"]
           }
         },
-        "Goat's Cheese Burger": {
-          note: "Pickles, red onion chutney, onion rings and coleslaw (V)"
-        },
-        "Steak & Ale Pie": {
-          note: "Chips, mushy peas and gravy"
-        },
-        "Beef Bourguignon": {
-          note: "Dauphinoise potatoes, green beans, thyme, bacon and onion gravy (GF Available)"
-        },
-        "Cumberland Pinwheel Sausage": {
-          note: "Creamed mash, buttered vegetables and onion gravy"
-        },
-        "Marinated Pepper Rigatoni": {
-          note: "Basil, pesto, cracked black pepper and parmesan (V)(VE Available)"
-        },
-        "Chicken Caesar Salad": {
-          note: "Baby gem, rustic croutons, parmesan cheese and crispy parmesan (GF Available)"
-        },
+        "Goat's Cheese Burger": {},
+        "Steak & Ale Pie": {},
+        "Beef Bourguignon": {},
+        "Cumberland Pinwheel Sausage": {},
+        "Marinated Pepper Rigatoni": {},
+        "Chicken Caesar Salad": {},
         "Sirloin Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Ribeye Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Fillet Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
@@ -189,30 +718,23 @@ const MENUS = {
 
   "Evening": {
     icon: "🌙",
+    availability: {
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      start: "16:00",
+      end: "20:15"
+    },
     sections: {
       "Starters": {
-        "Smoked Trout": {
-          note: "Citrus dill mayonnaise, Yorkshire pudding and watercress"
-        },
-        "Breakfast Scotch Egg": {
-          note: "Homemade hash browns and ketchup (GF Available)"
-        },
-        "Salt Baked Rainbow Beetroot": {
-          note: "Goats cheese, honey mousse and candied walnuts (V)(GF)"
-        },
-        "Pan Fried Garlic Mushroom": {
-          note: "Crispy bruschetta, pesto and parmesan (GF Available)(V)"
-        },
+        "Smoked Trout": {},
+        "Breakfast Scotch Egg": {},
+        "Salt Baked Rainbow Beetroot": {},
+        "Pan Fried Garlic Mushroom": {},
         "Soup of the Day": {
-          note: "Ask team for today's soup (GF Available)",
-          choices: {
-            "Bread": ["White Roll", "Granary Roll"]
-          }
+          choices: { "Bread": ["White Roll", "Granary Roll"] }
         }
       },
       "Mains": {
         "Beer Battered Traditional Haddock": {
-          note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -221,13 +743,9 @@ const MENUS = {
           }
         },
         "Double 4oz Cheese Burger": {
-          note: "Pickles, tomatoes, lettuce, onion rings, chips, coleslaw (GF Available)",
-          choices: {
-            "Cheese": ["Monterey Jack", "Blue Cheese"]
-          }
+          choices: { "Cheese": ["Monterey Jack", "Blue Cheese"] }
         },
         "Traditional Scampi": {
-          note: "Double-cooked chips, charred lemon, tartar sauce (GF Available)",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -235,43 +753,37 @@ const MENUS = {
             "Tartar": ["Tartar", "No Tartar"]
           }
         },
-        "Beef Bourguignon": {
-          note: "Dauphinoise potatoes, green beans, thyme, bacon and onion gravy (GF Available)"
+        "Beef Bourguignon": {},
+        "Marinated Pepper Rigatoni": {},
+        "Steak & Ale Pie": {},  
+        "Beef Wellington": {},
+        "Pan Fried Duck Breast": {},
+        "Crispy Belly Pork": {},
+        "Pan Fried Crispy Pancetta": {},
+        "Fish Platter": {
+          choices: {
+            "Type": ["Battered", "Grilled"],
+            "Peas": ["Mushy Peas", "Garden Peas"],
+            "Chip": ["Chips", "Fries"],
+            "Tartar": ["Tartar", "No Tartar"]
+          }
         },
-        "Marinated Pepper Rigatoni": {
-          note: "Basil, pesto, cracked black pepper and rigatoni (V)(VE Available)"
-        },
-        "Steak and Ale Pie": {
-          note: "Chips, mushy peas and gravy"
-        },
-        "Beef Wellington": {
-          note: "Roasted carrots, shallots, dauphinoise potatoes, chips and cherry jus"
-        },
-        "Pan Fried Duck Breast": {
-          note: "Blood orange and beetroot puree, fondant potato and five spice jus"
-        },
-        "Crispy Belly Pork": {
-          note: "Sweet potato puree, pak choi, black pudding bon bon, peanut butter soy jus"
-        },
-        "Pan Fried Crispy Pancetta": {
-          note: "King prawn carbonara and pan fried sea bass"
-        },
+        "Goat's Cheese Burger": {},
+        "Cumberland Pinwheel Sausage": {},
+        "Chicken Caesar Salad": {},
         "Sirloin Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Ribeye Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
           }
         },
         "Fillet Steak": {
-          note: "Flat mushroom, tomato, hand cut chips and salad (GF)",
           choices: {
             "Rarity": ["Rare", "Medium Rare", "Medium", "Medium Well", "Well Done"],
             "Sauce": ["No Sauce", "Blue Cheese Glaze", "Green Peppercorn", "Cowboy Butter", "Garlic Butter"]
@@ -297,58 +809,28 @@ const MENUS = {
 
   "Desserts": {
     icon: "🍰",
+    availability: {
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      start: "09:00",
+      end: "20:15"
+    },
     sections: {
       "Desserts": {
-        "White Chocolate and Blueberry Blondie": {
-          note: "Strawberry coulis and Strawberry Sensation ice cream"
-        },
-        "Venney's Cheesecake": {
-          note: "Ask team for today's flavour"
-        },
-        "Venney's Pavlova": {
-          note: "Ask team for today's flavour"
-        },
-        "Sticky Toffee Pudding": {
-          note: "Butterscotch sauce and vanilla ice cream (V)"
-        },
-        "Baked Alaska": {
-          note: "Served with wild berry"
-        },
-        "Ice Cream (1 Scoop)": {
-          choices: {
-            "Flavour": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
+        "White Chocolate and Blueberry Blondie": {},
+        "Venney's Cheesecake": {},
+        "Venney's Pavlova": {},
+        "Sticky Toffee Pudding": {},
+        "Baked Alaska": {},
+        "Ice Cream": {
+          scoopBuilder: {
+            maxScoops: 4,
+            flavours: ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
           }
         },
-        "Ice Cream (2 Scoops)": {
-          choices: {
-          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
-          }
-        },
-        "Ice Cream (3 Scoops)": {
-          choices: {
-          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 3": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
-          }
-        },
-        "Ice Cream (4 Scoops)": {
-          choices: {
-          "Flavour 1": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 2": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 3": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"],
-          "Flavour 4": ["Vanilla", "Strawberry", "Mint-Choc Chip", "Chocolate", "Raspberry Cheesecake", "Honeycomb", "Cookie Dough", "Cherry Chocolate", "Rum & Raisin", "Salted Caramel"]
-          }
-        },
-        "Sorbet (1 Scoop)": {
-          choices: {
-          "Flavour": ["Raspberry", "Mango"]
-          }
-        },
-        "Sorbet (2 Scoops)": {
-          choices: {
-          "Flavour 1": ["Raspberry", "Mango"],
-          "Flavour 2": ["Raspberry", "Mango"]
+        "Sorbet": {
+          scoopBuilder: {
+            maxScoops: 2,
+            flavours: ["Raspberry", "Mango"]
           }
         }
       }
@@ -357,32 +839,25 @@ const MENUS = {
 
   "Children's": {
     icon: "🧒",
+    availability: {
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      start: "09:00",
+      end: "20:15"
+    },
     sections: {
       "Children's Mains": {
         "Chicken Nuggets": {
-          note: "Served with chips (GF Available)",
-          choices: {
-            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
-          }
+          choices: { "Side": ["Beans", "Garden Peas", "Mushy Peas"] }
         },
         "Chicken Burger": {
-          note: "Served with chips (GF Available)",
-          choices: {
-            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
-          }
+          choices: { "Side": ["Beans", "Garden Peas", "Mushy Peas"] }
         },
         "Linguine with Beef Bolognaise": {},
         "Fresh Haddock Goujons": {
-          note: "Served with chips (GF Available)",
-          choices: {
-            "Side": ["Beans", "Garden Peas", "Mushy Peas"]
-          }
+          choices: { "Side": ["Beans", "Garden Peas", "Mushy Peas"] }
         },
         "Quorn Sausage": {
-          note: "Served with chips (GF)(VE)",
-          choices: {
-            "Side": ["Beans", "Garden Peas", "Mushy Peas"],
-          }
+          choices: { "Side": ["Beans", "Garden Peas", "Mushy Peas"] }
         }
       }
     }
@@ -390,38 +865,26 @@ const MENUS = {
 
   "Sunday": {
     icon: "🥩",
+    availability: {
+      days: ["Sun"],
+      start: "12:00",
+      end: "18:15"
+    },
     sections: {
       "Starters": {
-        "Prawn and Crayfish Cocktail": {
-          note: "Marie rose sauce, iceberg lettuce, fresh lemon and a granary roll"
-        },
-        "Halloumi Fries": {
-          note: "With siracha mayonnaise"
-        },
-        "Dressed Crab": {
-          note: "With dill and citrus mayonnaise"
-        }
+        "Prawn and Crayfish Cocktail": {},
+        "Halloumi Fries": {},
+        "Dressed Crab": {}
       },
       "Roast Dinners": {
-        "Slow Roasted Beef Dinner": {
-          note: "Yorkshire pudding, stuffing, mash, roast potatoes, parsnip, carrot, cabbage, gravy"
-        },
-        "Roast Chicken Breast Dinner": {
-          note: "Yorkshire pudding, stuffing, mash, roast potatoes, parsnip, carrot, cabbage, gravy"
-        },
-        "Roasted Pork Loin Dinner": {
-          note: "Yorkshire pudding, stuffing, mash, roast potatoes, parsnip, carrot, cabbage, gravy"
-        },
-        "Quorn Sausage Dinner": {
-          note: "Yorkshire pudding, stuffing, mash, roast potatoes, parsnip, carrot, cabbage, gravy"
-        },
-        "Lincolnshire Sausage Dinner": {
-          note: "Yorkshire pudding, stuffing, mash, roast potatoes, parsnip, carrot, cabbage, gravy"
-        }
+        "Slow Roasted Beef Dinner": {},
+        "Roast Chicken Breast Dinner": {},
+        "Roasted Pork Loin Dinner": {},
+        "Quorn Sausage Dinner": {},
+        "Lincolnshire Sausage Dinner": {}
       },
       "Other Mains": {
         "Traditional Haddock": {
-          note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -430,7 +893,6 @@ const MENUS = {
           }
         },
         "1/2 Traditional Haddock": {
-          note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -439,7 +901,6 @@ const MENUS = {
           }
         },
         "Scampi": {
-          note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -448,7 +909,6 @@ const MENUS = {
           }
         },
         "1/2 Scampi": {
-          note: "Hand cut chips, tartar sauce and lemon wedge",
           choices: {
             "Type": ["Battered", "Grilled"],
             "Peas": ["Mushy Peas", "Garden Peas"],
@@ -465,43 +925,5 @@ const MENUS = {
         "Buttered Vegetables": {}
       }
     }
-  },
-  "Drinks": {
-    icon: "🍷",
-    sections: {
-      "Draught": {
-        "Carling": {
-          choices: {
-            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
-          }
-        },
-        "Staropramen": {
-          choices: {
-            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
-          }
-        },
-        "Madri": {
-          choices: {
-            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
-          }
-        },
-        "Guinness": {
-          choices: {
-            "Type": ["Pint", "Half Pint"]
-          }
-        },
-        "Worthingtons": {
-          choices: {
-            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
-          }
-        },
-        "Alpacalypse": {
-          choices: {
-            "Type": ["Pint", "Half Pint", "Shandy", "Half Shandy", "Top", "Half Top"]
-          }
-        }
-      }
-    }
   }
-
 };

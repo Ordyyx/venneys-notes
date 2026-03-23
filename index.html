@@ -116,6 +116,10 @@ html, body {
 .section-tab:hover { color: var(--text-mid); }
 .section-tab.active { color: var(--text); background: var(--card); }
 
+.subsection-tabs { background: var(--bg); border-bottom: 1px solid var(--border); display: none; }
+.subsection-tabs.visible { display: flex; }
+.subsection-tabs .section-tab.active { color: var(--gold); background: var(--gold-soft); }
+
 /* ── Items grid ── */
 .items-area {
   flex: 1; overflow-y: auto; padding: 12px 20px 80px;
@@ -138,12 +142,8 @@ html, body {
 .item-card:hover { border-color: var(--gold); background: var(--card-hover); }
 
 .item-card .iname { font-weight: 600; font-size: 0.9rem; line-height: 1.25; }
-.item-card .inote { font-size: 0.73rem; color: var(--text-dim); line-height: 1.35; margin-top: 2px; }
-.item-card .ichoices { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
-.item-card .ichoice-tag {
-  font-size: 0.65rem; background: var(--gold-soft); color: var(--gold);
-  padding: 2px 7px; border-radius: 10px; font-weight: 500;
-}
+/* Unavailable menu tabs */
+.menu-tab.unavail { display: none; }
 
 .item-card.flash { animation: tapFlash 0.35s ease; }
 @keyframes tapFlash {
@@ -445,6 +445,7 @@ html, body {
     </div>
     <div class="menu-tabs" id="menuTabs"></div>
     <div class="section-tabs" id="sectionTabs"></div>
+    <div class="section-tabs subsection-tabs" id="subsectionTabs"></div>
     <div class="items-area">
       <div class="items-grid" id="itemsGrid"></div>
     </div>
@@ -507,9 +508,13 @@ if ('serviceWorker' in navigator) {
 }
 
 (() => {
+  // ── Debug Mode: set to true to show all menus regardless of availability ──
+  const DEBUG_SHOW_ALL_MENUS = true;
+
   // ── State ──
   let activeMenu = null;
   let activeSection = null;
+  let activeSubsection = null;
   let note = [];
   let noteId = 0;
   let editingNoteId = null;
@@ -521,6 +526,7 @@ if ('serviceWorker' in navigator) {
   const $ = id => document.getElementById(id);
   const menuTabsEl = $('menuTabs');
   const sectionTabsEl = $('sectionTabs');
+  const subsectionTabsEl = $('subsectionTabs');
   const itemsGridEl = $('itemsGrid');
   const breadcrumbsEl = $('breadcrumbs');
   const noteListEl = $('noteList');
@@ -536,18 +542,59 @@ if ('serviceWorker' in navigator) {
   const modalSubEl = $('modalSub');
   const modalBodyEl = $('modalBody');
 
+  // ═══════ AVAILABILITY HELPERS ═══════
+
+  function isMenuAvailable(menuKey) {
+    if (DEBUG_SHOW_ALL_MENUS) return true;
+    const avail = MENUS[menuKey].availability;
+    if (!avail) return true;
+
+    const now = new Date();
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const todayDay = days[now.getDay()];
+    if (!avail.days.includes(todayDay)) return false;
+
+    const [sh, sm] = avail.start.split(':').map(Number);
+    const [eh, em] = avail.end.split(':').map(Number);
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const startMins = sh * 60 + sm;
+    const endMins = eh * 60 + em;
+    return nowMins >= startMins && nowMins < endMins;
+  }
+
+  function menuAvailabilityLabel(menuKey) {
+    const avail = MENUS[menuKey].availability;
+    if (!avail) return '';
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const todayDay = days[new Date().getDay()];
+    if (!avail.days.includes(todayDay)) {
+      const dayList = avail.days.length === 7 ? 'Daily' : avail.days.join(', ');
+      return `${dayList} · ${avail.start}–${avail.end}`;
+    }
+    return `${avail.start}–${avail.end}`;
+  }
+
   // ═══════ MENU RENDERING ═══════
 
   function renderMenuTabs() {
     const keys = Object.keys(MENUS);
-    if (!activeMenu) activeMenu = keys[0];
+    // Auto-select first available menu, or first menu if none available
+    if (!activeMenu || !keys.includes(activeMenu)) {
+      activeMenu = keys.find(k => isMenuAvailable(k)) || keys[0];
+    }
     menuTabsEl.innerHTML = keys.map(k => {
       const m = MENUS[k];
-      return `<div class="menu-tab${k===activeMenu?' active':''}" data-k="${k}"><span class="ti">${m.icon}</span>${k}</div>`;
+      const available = isMenuAvailable(k);
+      const label = menuAvailabilityLabel(k);
+      const unavailAttr = available ? '' : ' data-unavail="1"';
+      const title = available ? '' : ` title="${label}"`;
+      return `<div class="menu-tab${k===activeMenu?' active':''}${available?'':' unavail'}" data-k="${k}">
+        <span class="ti">${m.icon}</span>${k}
+      </div>`;
     }).join('');
     menuTabsEl.querySelectorAll('.menu-tab').forEach(t => {
       t.addEventListener('click', () => {
-        activeMenu = t.dataset.k; activeSection = null;
+        activeMenu = t.dataset.k; activeSection = null; activeSubsection = null;
         renderMenuTabs(); renderSectionTabs(); renderItems(); updateBC();
       });
     });
@@ -563,26 +610,41 @@ if ('serviceWorker' in navigator) {
     sectionTabsEl.querySelectorAll('.section-tab').forEach(t => {
       t.addEventListener('click', () => {
         activeSection = t.dataset.s;
-        renderSectionTabs(); renderItems(); updateBC();
+        activeSubsection = null;
+        renderSectionTabs(); renderSubsectionTabs(); renderItems(); updateBC();
+      });
+    });
+    renderSubsectionTabs();
+  }
+
+  function renderSubsectionTabs() {
+    if (!activeMenu || !activeSection) { subsectionTabsEl.classList.remove('visible'); return; }
+    const sec = MENUS[activeMenu].sections[activeSection];
+    if (!sec || !sec.subsections) { subsectionTabsEl.classList.remove('visible'); return; }
+    const subs = Object.keys(sec.subsections);
+    if (!activeSubsection || !subs.includes(activeSubsection)) activeSubsection = subs[0];
+    subsectionTabsEl.classList.add('visible');
+    subsectionTabsEl.innerHTML = subs.map(s =>
+      `<div class="section-tab${s===activeSubsection?' active':''}" data-s="${s}">${s}</div>`
+    ).join('');
+    subsectionTabsEl.querySelectorAll('.section-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        activeSubsection = t.dataset.s;
+        renderSubsectionTabs(); renderItems(); updateBC();
       });
     });
   }
 
   function renderItems() {
     if (!activeMenu || !activeSection) return;
-    const items = MENUS[activeMenu].sections[activeSection];
+    const sec = MENUS[activeMenu].sections[activeSection];
+    if (!sec) { itemsGridEl.innerHTML = ''; return; }
+    const items = sec.subsections ? sec.subsections[activeSubsection] : sec;
     if (!items) { itemsGridEl.innerHTML = ''; return; }
 
     itemsGridEl.innerHTML = Object.entries(items).map(([name, data]) => {
-      const noteHtml = data.note ? `<div class="inote">${data.note}</div>` : '';
-      let choiceTags = '';
-      if (data.choices) {
-        choiceTags = '<div class="ichoices">' +
-          Object.keys(data.choices).map(g => `<span class="ichoice-tag">${g}</span>`).join('') +
-          '</div>';
-      }
       return `<div class="item-card" data-name="${esc(name)}">
-        <div class="iname">${name}</div>${noteHtml}${choiceTags}
+        <div class="iname">${name}</div>
       </div>`;
     }).join('');
 
@@ -599,14 +661,16 @@ if ('serviceWorker' in navigator) {
     let h = '';
     if (activeMenu) h += `<span class="sep">›</span><span class="cur">${activeMenu}</span>`;
     if (activeSection) h += `<span class="sep">›</span><span class="cur">${activeSection}</span>`;
+    if (activeSubsection) h += `<span class="sep">›</span><span class="cur">${activeSubsection}</span>`;
     breadcrumbsEl.innerHTML = h;
   }
 
   // ═══════ ITEM TAP ═══════
 
   function handleItemTap(name, data, cardEl) {
-    const hasChoices = data.choices && Object.keys(data.choices).length > 0;
-    if (hasChoices) {
+    if (data.scoopBuilder) {
+      openScoopModal(name, data.scoopBuilder);
+    } else if (data.choices && Object.keys(data.choices).length > 0) {
       openModal(name, data);
     } else {
       addToNote(name, {}, '');
@@ -618,6 +682,69 @@ if ('serviceWorker' in navigator) {
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
   }
 
+  // ── SCOOP BUILDER MODAL ──
+
+  let scoopBuilderName = '';
+  let scoopBuilderFlavours = [];
+  let scoopCount = 0;
+
+  function openScoopModal(name, builder) {
+    scoopBuilderName = name;
+    scoopBuilderFlavours = builder.flavours;
+    scoopCount = 0;
+    modalItemName = name;
+    modalTitleEl.textContent = name;
+    modalSubEl.textContent = '';
+    renderScoopModal(builder.maxScoops);
+    modalOverlayEl.classList.add('open');
+  }
+
+  function renderScoopModal(maxScoops) {
+    const scoopNums = Array.from({ length: maxScoops }, (_, i) => i + 1);
+    let html = `<div class="choice-group">
+      <div class="choice-group-label">Scoops</div>
+      <div class="choice-options">
+        ${scoopNums.map(n => `<div class="choice-pill scoop-count-pill${scoopCount === n ? ' selected' : ''}" data-scoops="${n}">${n} Scoop${n > 1 ? 's' : ''}</div>`).join('')}
+      </div>
+    </div>
+    <div id="scoopFlavourPickers"></div>
+    <div class="modal-note-section">
+      <label>Add a note (optional)</label>
+      <input class="modal-note-input" id="modalNoteInput" type="text" placeholder="e.g. in a cone, extra sauce…">
+    </div>`;
+    modalBodyEl.innerHTML = html;
+    modalBodyEl.querySelectorAll('.scoop-count-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        scoopCount = parseInt(pill.dataset.scoops);
+        modalBodyEl.querySelectorAll('.scoop-count-pill').forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+        renderFlavourPickers();
+      });
+    });
+  }
+
+  function renderFlavourPickers() {
+    const container = document.getElementById('scoopFlavourPickers');
+    if (!container) return;
+    let html = '';
+    for (let i = 1; i <= scoopCount; i++) {
+      html += `<div class="choice-group">
+        <div class="choice-group-label">Scoop ${i}</div>
+        <div class="choice-options">
+          ${scoopBuilderFlavours.map(f => `<div class="choice-pill scoop-flavour-pill" data-scoop="${i}" data-val="${esc(f)}">${f}</div>`).join('')}
+        </div>
+      </div>`;
+    }
+    container.innerHTML = html;
+    container.querySelectorAll('.scoop-flavour-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const s = pill.dataset.scoop;
+        container.querySelectorAll(`.scoop-flavour-pill[data-scoop="${s}"]`).forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+      });
+    });
+  }
+
   // ═══════ CHOICES MODAL ═══════
 
   function openModal(name, data) {
@@ -625,7 +752,7 @@ if ('serviceWorker' in navigator) {
     modalItemData = data;
     modalSelections = {};
     modalTitleEl.textContent = name;
-    modalSubEl.textContent = data.note || '';
+    modalSubEl.textContent = '';
 
     let html = '';
     if (data.choices) {
@@ -665,7 +792,18 @@ if ('serviceWorker' in navigator) {
 
   $('modalAdd').addEventListener('click', () => {
     const userNote = ($('modalNoteInput')?.value || '').trim();
-    addToNote(modalItemName, { ...modalSelections }, userNote);
+    if (scoopCount > 0 && modalBodyEl.querySelector('.scoop-count-pill')) {
+      const flavours = [];
+      for (let i = 1; i <= scoopCount; i++) {
+        const sel = modalBodyEl.querySelector(`.scoop-flavour-pill[data-scoop="${i}"].selected`);
+        flavours.push(sel ? sel.dataset.val : '?');
+      }
+      const choiceStr = `${scoopCount} Scoop${scoopCount > 1 ? 's' : ''}: ${flavours.join(', ')}`;
+      addToNote(scoopBuilderName, { Scoops: choiceStr }, userNote);
+      scoopCount = 0;
+    } else {
+      addToNote(modalItemName, { ...modalSelections }, userNote);
+    }
     closeModal();
     const cards = itemsGridEl.querySelectorAll('.item-card');
     cards.forEach(c => { if (c.dataset.name === modalItemName) flashCard(c); });
