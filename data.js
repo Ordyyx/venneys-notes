@@ -953,7 +953,6 @@ const MENUS = {
         "Original 8oz Burger": {},
         "Traditional Scampi": {
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
             Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
@@ -1076,7 +1075,6 @@ const MENUS = {
         },
         "Traditional Scampi": {
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
             Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
@@ -1268,7 +1266,6 @@ const MENUS = {
         },
         Scampi: {
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
             Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
@@ -1276,7 +1273,6 @@ const MENUS = {
         },
         "1/2 Scampi": {
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
             Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
