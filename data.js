@@ -226,7 +226,7 @@ const MENUS = {
             }
           },
           "Gin": {
-            "Hakwstone Gin": {
+            "Hawkstone Gin": {
               choices: {
                 "Measure": ["Single", "Double"],
                 "Mixer": ["Lemonade", "Tonic", "London Essence Lemonade", "Ginger Ale"],
