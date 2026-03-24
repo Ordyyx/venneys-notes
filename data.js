@@ -1175,6 +1175,7 @@ const MENUS = {
         "Venney's Pavlova": {},
         "Sticky Toffee Pudding": {},
         "Baked Alaska": {},
+        "Bread & Butter Pudding": {},
         "Ice Cream": {
           scoopBuilder: {
             maxScoops: 4,
