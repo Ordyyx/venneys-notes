@@ -3,7 +3,7 @@ const MENUS = {
     icon: "🍷",
     availability: {
       days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      start: "09:00",
+      start: "00:00",
       end: "23:00"
     },
     sections: {
@@ -811,7 +811,7 @@ const MENUS = {
     icon: "🍰",
     availability: {
       days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      start: "09:00",
+      start: "00:00",
       end: "20:15"
     },
     sections: {

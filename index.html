@@ -550,9 +550,10 @@ if ('serviceWorker' in navigator) {
 
 (() => {
   // ══════════════════════════════════════════════
-  // DEBUG: set to true to show ALL menus regardless
-  // of their availability hours. Set to FALSE in prod!
-  const DEBUG_SHOW_ALL_MENUS = false;
+  // DEBUG: Add ?debug to the URL to show ALL menus
+  // regardless of availability. No code change needed.
+  // e.g. index.html?debug
+  const DEBUG_SHOW_ALL_MENUS = location.search.includes('debug');
   // ══════════════════════════════════════════════
 
   // ── State ──
