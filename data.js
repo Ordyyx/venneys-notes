@@ -1089,17 +1089,6 @@ const MENUS = {
         "Pan Fried Duck Breast": {},
         "Crispy Belly Pork": {},
         "Pan Fried Crispy Pancetta": {},
-        "Fish Platter": {
-          choices: {
-            Type: ["Battered", "Grilled"],
-            Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
-            Tartar: ["Tartar", "No Tartar"],
-          },
-        },
-        "Goat's Cheese Burger": {},
-        "Cumberland Pinwheel Sausage": {},
-        "Chicken Caesar Salad": {},
         "Sirloin Steak": {
           choices: {
             Rarity: [
