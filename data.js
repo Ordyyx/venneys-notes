@@ -892,34 +892,53 @@ const MENUS = {
     sections: {
       "Main Bites": {
         "Venney's Large Breakfast": {
+          price: 14.0,
+          dietary: ["GFA"],
           choices: { Eggs: ["Fried", "Scrambled", "Poached"] },
         },
         "Venney's Small Breakfast": {
+          price: 11.0,
+          dietary: ["GFA"],
           choices: { Eggs: ["Fried", "Scrambled", "Poached"] },
         },
-        "Venney's Vegan Breakfast": {},
         "Venney's Vegetarian Breakfast": {
+          price: 14.0,
+          dietary: ["V", "GF"],
           choices: { Eggs: ["Fried", "Scrambled", "Poached"] },
         },
-        "Eggs Benedict": {},
+        "Venney's Vegan Breakfast": { price: 14.0, dietary: ["VG", "GF"] },
+        "Eggs Benedict": { price: 10.0 },
         "Eggs on Toast": {
+          price: 6.0,
+          dietary: ["V"],
           choices: { Eggs: ["Poached", "Scrambled", "Fried"] },
         },
-        "Spiced Avocado & Egg Muffins": {},
-        "Belgium Waffle": {},
-        "Sausage Bun": {},
-        "Bacon Bun": {},
+        "Spiced Avocado & Egg Muffins": { price: 9.0, dietary: ["V"] },
+        "Belgium Waffle": { price: 9.0, dietary: ["V"] },
+        "Sausage Bun": { price: 7.0, dietary: ["VGA"] },
+        "Bacon Bun": { price: 7.0 },
         "Egg Bun": {
+          price: 6.0,
+          dietary: ["V"],
           choices: { Eggs: ["Fried", "Scrambled", "Poached"] },
         },
-        "Breakfast Bun": {},
-        "Greek Yoghurt with Granola": {},
+        "Breakfast Bun": { price: 9.0 },
+        "Greek Yoghurt with Granola": { price: 7.0, dietary: ["V"] },
       },
-      Smoothies: {
-        "Avo-Go-Go": {},
-        "Pash-n-shoot": {},
-        "The Big 4": {},
-        "Coco Loco": {},
+      "Extra's": {
+        Sausage: { price: 1.5 },
+        Bacon: { price: 1.5 },
+        "Baked Beans": { price: 1.5, dietary: ["V", "VG", "GF"] },
+        "Black Pudding": { price: 1.5 },
+        "Fried Egg": { price: 1.5, dietary: ["V", "GF"] },
+        Tomato: { price: 1.5, dietary: ["V", "VG", "GF"] },
+        Mushroom: { price: 1.5, dietary: ["V", "VG", "GF"] },
+        "Tater Tots": { price: 1.5, dietary: ["V", "VG"] },
+        Toast: { price: 1.5, dietary: ["V"] },
+        "Fried Bread": { price: 1.5, dietary: ["V"] },
+        "Bread and Butter": { price: 1.5, dietary: ["V"] },
+        Jam: { price: 1.5, dietary: ["V", "VG", "GF"] },
+        Marmalade: { price: 1.5, dietary: ["V", "VG", "GF"] },
       },
     },
   },
@@ -932,114 +951,113 @@ const MENUS = {
       end: "16:00",
     },
     sections: {
-      Starters: {
-        "Smoked Trout": {},
-        "Breakfast Scotch Egg": {},
-        "Salt Baked Rainbow Beetroot": {},
-        "Pan Fried Garlic Mushroom": {},
+      "Classic Mains": {
+        "Beer Battered Traditional Haddock": {
+          price: 19.0,
+          dietary: ["GFA"],
+          choices: {
+            Peas: ["Mushy Peas", "Garden Peas"],
+            Tartar: ["Tartar", "No Tartar"],
+          },
+        },
+        "Small Traditional Haddock": {
+          price: 14.0,
+          dietary: ["GFA"],
+          choices: {
+            Peas: ["Mushy Peas", "Garden Peas"],
+            Tartar: ["Tartar", "No Tartar"],
+          },
+        },
+        "Traditional Scampi": {
+          price: 19.0,
+          dietary: ["GFA"],
+          choices: {
+            Peas: ["Mushy Peas", "Garden Peas"],
+            Tartar: ["Tartar", "No Tartar"],
+          },
+        },
+        "Small Traditional Scampi": {
+          price: 14.0,
+          dietary: ["GFA"],
+          choices: {
+            Peas: ["Mushy Peas", "Garden Peas"],
+            Tartar: ["Tartar", "No Tartar"],
+          },
+        },
+        "Steak and Ale Pie": { price: 22.0 },
+        "Marinated Pepper Rigatoni": { price: 19.0, dietary: ["V", "VGA"] },
+      },
+      "Fresh Sandwiches": {
+        "Tuna Mayo": {
+          price: 12.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Chicken, Bacon and Mayo": {
+          price: 12.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Prawn Maryrose": {
+          price: 12.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Cheese and Pickle": {
+          price: 12.0,
+          dietary: ["V", "GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Fish Finger & Tartar Sauce": {
+          price: 12.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Classic Club Sandwich": {
+          price: 14.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+        "Bacon, Lettuce and Tomato": {
+          price: 14.0,
+          dietary: ["GFA"],
+          choices: {
+            Bread: ["Farmhouse", "White"],
+            Side: ["Chips", "Crisps"],
+          },
+        },
+      },
+      "Baked Potatoes": {
+        "Cheese and Pickle": { price: 12.0, dietary: ["V", "GFA"] },
+        "Cheese and Beans": { price: 12.0, dietary: ["V", "GFA"] },
+        "Tuna Mayo": { price: 12.0, dietary: ["GFA"] },
+      },
+      "Lighter Bites": {
+        "Caesar Salad": { price: 16.0 },
+        "Breakfast Scotch Egg": { price: 9.0 },
         "Soup of the Day": {
+          price: 9.0,
+          dietary: ["VG", "GFA"],
           choices: { Bread: ["White Roll", "Granary Roll"] },
         },
-      },
-      Mains: {
-        "Beer Battered Traditional Haddock": {
-          choices: {
-            Type: ["Battered", "Grilled"],
-            Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
-            Tartar: ["Tartar", "No Tartar"],
-          },
-        },
-        "Original 8oz Burger": {},
-        "Traditional Scampi": {
-          choices: {
-            Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
-            Tartar: ["Tartar", "No Tartar"],
-          },
-        },
-        "Fish Platter": {
-          choices: {
-            Type: ["Battered", "Grilled"],
-            Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
-            Tartar: ["Tartar", "No Tartar"],
-          },
-        },
-        "Goat's Cheese Burger": {},
-        "Steak & Ale Pie": {},
-        "Beef Bourguignon": {},
-        "Cumberland Pinwheel Sausage": {},
-        "Marinated Pepper Rigatoni": {},
-        "Chicken Caesar Salad": {},
-        "Sirloin Steak": {
-          choices: {
-            Rarity: [
-              "Rare",
-              "Medium Rare",
-              "Medium",
-              "Medium Well",
-              "Well Done",
-            ],
-            Sauce: [
-              "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
-            ],
-          },
-        },
-        "Ribeye Steak": {
-          choices: {
-            Rarity: [
-              "Rare",
-              "Medium Rare",
-              "Medium",
-              "Medium Well",
-              "Well Done",
-            ],
-            Sauce: [
-              "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
-            ],
-          },
-        },
-        "Fillet Steak": {
-          choices: {
-            Rarity: [
-              "Rare",
-              "Medium Rare",
-              "Medium",
-              "Medium Well",
-              "Well Done",
-            ],
-            Sauce: [
-              "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
-            ],
-          },
-        },
-      },
-      Sides: {
-        "French Fries": {},
-        "Sweet Potato Fries": {},
-        "Bread & Butter": {},
-        Chips: {},
-        "Garlic Mushrooms": {},
-        "Dressed Salad": {},
-        Coleslaw: {},
-        "Onion Rings": {},
-        "Truffle & Parmesan Fries": {},
-        "Pot of Gravy": {},
-        "Garlic Bread Slice": {},
-        "Cheesy Garlic Bread": {},
       },
     },
   },
@@ -1053,41 +1071,51 @@ const MENUS = {
     },
     sections: {
       Starters: {
-        "Smoked Trout": {},
-        "Breakfast Scotch Egg": {},
-        "Salt Baked Rainbow Beetroot": {},
-        "Pan Fried Garlic Mushroom": {},
+        "Smoked Trout": { price: 12.0 },
+        "Breakfast Scotch Egg": { price: 9.0 },
+        "Salt Baked Rainbow Beetroot": { price: 9.0, dietary: ["V", "GF"] },
+        "Pan Fried Garlic Mushroom": { price: 9.0, dietary: ["V", "GFA"] },
         "Soup of the Day": {
+          price: 9.0,
+          dietary: ["GFA"],
           choices: { Bread: ["White Roll", "Granary Roll"] },
         },
       },
-      Mains: {
+      "Classic Mains": {
         "Beer Battered Traditional Haddock": {
+          price: 19.0,
+          dietary: ["GFA"],
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
         "Double 4oz Cheese Burger": {
+          price: 20.0,
           choices: { Cheese: ["Monterey Jack", "Blue Cheese"] },
         },
         "Traditional Scampi": {
+          price: 19.0,
+          dietary: ["GFA"],
           choices: {
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
-        "Beef Bourguignon": {},
-        "Marinated Pepper Rigatoni": {},
-        "Steak & Ale Pie": {},
-        "Beef Wellington": {},
-        "Pan Fried Duck Breast": {},
-        "Crispy Belly Pork": {},
-        "Pan Fried Crispy Pancetta": {},
+        "Beef Bourguignon": { price: 24.0, dietary: ["GFA"] },
+        "Marinated Pepper Rigatoni": { price: 19.0, dietary: ["V", "VGA"] },
+        "Steak and Ale Pie": { price: 22.0 },
+      },
+      "A Lá Carte": {
+        "Beef Wellington": { price: 37.0 },
+        "Pan Fried Duck Breast": { price: 28.0 },
+        "Crispy Belly Pork": { price: 25.0 },
+        "Pan Fried Crispy Pancetta": { price: 28.0 },
+      },
+      Steaks: {
         "Sirloin Steak": {
+          price: 26.0,
+          dietary: ["GF"],
           choices: {
             Rarity: [
               "Rare",
@@ -1098,14 +1126,16 @@ const MENUS = {
             ],
             Sauce: [
               "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
+              "Blue Cheese Glaze (+£3)",
+              "Peppercorn Sauce (+£3)",
+              "Cowboy Butter (+£3)",
+              "Garlic Butter (+£3)",
             ],
           },
         },
-        "Ribeye Steak": {
+        "Rib-eye Steak": {
+          price: 27.0,
+          dietary: ["GF"],
           choices: {
             Rarity: [
               "Rare",
@@ -1116,14 +1146,16 @@ const MENUS = {
             ],
             Sauce: [
               "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
+              "Blue Cheese Glaze (+£3)",
+              "Peppercorn Sauce (+£3)",
+              "Cowboy Butter (+£3)",
+              "Garlic Butter (+£3)",
             ],
           },
         },
         "Fillet Steak": {
+          price: 35.0,
+          dietary: ["GF"],
           choices: {
             Rarity: [
               "Rare",
@@ -1134,27 +1166,27 @@ const MENUS = {
             ],
             Sauce: [
               "No Sauce",
-              "Blue Cheese Glaze",
-              "Green Peppercorn",
-              "Cowboy Butter",
-              "Garlic Butter",
+              "Blue Cheese Glaze (+£3)",
+              "Peppercorn Sauce (+£3)",
+              "Cowboy Butter (+£3)",
+              "Garlic Butter (+£3)",
             ],
           },
         },
       },
-      Sides: {
-        "French Fries": {},
-        "Sweet Potato Fries": {},
-        "Bread & Butter": {},
-        Chips: {},
-        "Garlic Mushrooms": {},
-        "Dressed Salad": {},
-        Coleslaw: {},
-        "Onion Rings": {},
-        "Truffle & Parmesan Fries": {},
-        "Pot of Gravy": {},
-        "Garlic Bread Slice": {},
-        "Cheesy Garlic Bread": {},
+      "Side Dishes": {
+        "French Fries": { price: 3.5, dietary: ["V", "VG", "GF"] },
+        "Sweet Potato Fries": { price: 3.95, dietary: ["V", "VG", "GF"] },
+        "Bread & Butter": { price: 1.95, dietary: ["V"] },
+        Chips: { price: 3.5, dietary: ["V", "VG", "GF"] },
+        "Garlic Mushrooms": { price: 3.5, dietary: ["V", "GF"] },
+        "Dressed Salad": { price: 3.0, dietary: ["V", "VG", "GF"] },
+        Coleslaw: { price: 3.0, dietary: ["V", "GF"] },
+        "Onion Rings": { price: 4.95, dietary: ["V"] },
+        "Truffle & Parmesan Fries": { price: 4.95, dietary: ["V", "GF"] },
+        "Pot of Gravy": { price: 1.5, dietary: ["GF"] },
+        "Garlic Bread Slice": { price: 1.5, dietary: ["V"] },
+        "Cheesy Garlic Bread": { price: 2.0, dietary: ["V"] },
       },
     },
   },
@@ -1168,13 +1200,24 @@ const MENUS = {
     },
     sections: {
       Desserts: {
-        "White Chocolate and Blueberry Blondie": {},
-        "Venney's Cheesecake": {},
-        "Venney's Pavlova": {},
-        "Sticky Toffee Pudding": {},
-        "Baked Alaska": {},
-        "Bread & Butter Pudding": {},
+        "White Chocolate and Blueberry Blondie": {
+          price: 10.0,
+        },
+        "Venney's Cheesecake": {
+          price: 10.0,
+        },
+        "Venney's Pavlova": {
+          price: 10.0,
+        },
+        "Sticky Toffee Pudding": {
+          dietary: ["V"],
+          price: 10.0,
+        },
+        "Baked Alaska": {
+          price: 10.0,
+        },
         "Ice Cream": {
+          price: 2.5,
           scoopBuilder: {
             maxScoops: 4,
             flavours: [
@@ -1192,6 +1235,8 @@ const MENUS = {
           },
         },
         Sorbet: {
+          dietary: ["VE", "GF"],
+          price: 2.5,
           scoopBuilder: {
             maxScoops: 2,
             flavours: ["Raspberry", "Mango"],
@@ -1209,19 +1254,51 @@ const MENUS = {
       end: "20:15",
     },
     sections: {
-      "Children's Mains": {
+      "Main's": {
         "Chicken Nuggets": {
-          choices: { Side: ["Beans", "Garden Peas", "Mushy Peas"] },
+          price: 9.0,
+          dietary: ["GFA"],
+          choices: { Side: ["Beans", "Peas"] },
         },
         "Chicken Burger": {
-          choices: { Side: ["Beans", "Garden Peas", "Mushy Peas"] },
+          price: 9.0,
+          dietary: ["GFA"],
+          choices: { Side: ["Beans", "Peas"] },
         },
-        "Linguine with Beef Bolognaise": {},
+        "Linguini with Beef Bolognaise": { price: 9.0 },
         "Fresh Haddock Goujons": {
-          choices: { Side: ["Beans", "Garden Peas", "Mushy Peas"] },
+          price: 9.0,
+          dietary: ["GFA"],
+          choices: { Side: ["Beans", "Peas"] },
         },
         "Quorn Sausage": {
-          choices: { Side: ["Beans", "Garden Peas", "Mushy Peas"] },
+          price: 9.0,
+          dietary: ["V", "VG", "GF"],
+          choices: { Side: ["Beans", "Peas"] },
+        },
+      },
+      "Children's Drink's": {
+        "Fruit Shoot": {
+          price: 2.95,
+          dietary: ["V", "VG", "GF"],
+          choices: {
+            Flavour: ["Orange", "Apple & Blackcurrant", "Summer Fruits"],
+          },
+        },
+        "Blue Tornado": { price: 4.95, dietary: ["V", "VG", "GF"] },
+        CandyColada: { price: 4.95, dietary: ["V", "VG", "GF"] },
+        "Berry Delight": { price: 4.95, dietary: ["V", "VG", "GF"] },
+      },
+      "Children's Desserts": {
+        "Ice Cream": {
+          price: 2.5,
+          dietary: ["V", "GF"],
+          choices: { Flavour: ["Vanilla", "Strawberry", "Chocolate"] },
+        },
+        Sorbets: {
+          price: 2.5,
+          dietary: ["V", "VG"],
+          choices: { Flavour: ["Raspberry", "Mango"] },
         },
       },
     },
@@ -1236,56 +1313,74 @@ const MENUS = {
     },
     sections: {
       Starters: {
-        "Prawn and Crayfish Cocktail": {},
-        "Halloumi Fries": {},
-        "Dressed Crab": {},
+        "Smoked Trout": { price: 12.0 },
+        "Soup of the Day": {
+          price: 9.0,
+          dietary: ["GF"],
+          choices: { Bread: ["White Roll", "Granary Roll"] },
+        },
+        "Pan Fried Garlic Mushrooms": { price: 9.0, dietary: ["V"] },
       },
-      "Roast Dinners": {
-        "Slow Roasted Beef Dinner": {},
-        "Roast Chicken Breast Dinner": {},
-        "Roasted Pork Loin Dinner": {},
-        "Quorn Sausage Dinner": {},
-        "Lincolnshire Sausage Dinner": {},
-      },
-      "Other Mains": {
+      Mains: {
+        "Slow Roasted Sirloin Beef": { price: 20.0, dietary: ["GFA"] },
+        "Roasted Chicken Breast": { price: 18.0, dietary: ["GFA"] },
+        "Roasted Pork Loin": { price: 19.0, dietary: ["GFA"] },
+        "Quorn Sausages": { price: 18.0, dietary: ["V", "GF", "VGA"] },
+        "Lincolnshire Sausages": { price: 18.0 },
         "Traditional Haddock": {
+          price: 19.0,
+          dietary: ["GFA"],
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
-        "1/2 Traditional Haddock": {
+        "Small Traditional Haddock": {
+          price: 14.0,
+          dietary: ["GFA"],
           choices: {
-            Type: ["Battered", "Grilled"],
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
         Scampi: {
+          price: 19.0,
+          dietary: ["GFA"],
           choices: {
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
-        "1/2 Scampi": {
+        "Small Scampi": {
+          price: 14.0,
+          dietary: ["GFA"],
           choices: {
             Peas: ["Mushy Peas", "Garden Peas"],
-            Chip: ["Chips", "Fries"],
             Tartar: ["Tartar", "No Tartar"],
           },
         },
-        "Steak & Ale Pie": {},
+        "Sweet Potato Roulade": { price: 18.0, dietary: ["V", "VG"] },
+        "Steak and Ale Pie": { price: 22.0 },
+        "Venney's Children's Roast": {
+          price: 14.0,
+          choices: {
+            Meat: [
+              "Roasted Sirloin Beef (+£2)",
+              "Roasted Pork Loin",
+              "Chicken Breast",
+              "Lincolnshire Sausages",
+              "Quorn Sausages (V)",
+            ],
+          },
+        },
       },
-      "Sunday Sides": {
-        "Yorkshire Pudding": {},
-        Stuffing: {},
-        "Cauliflower Cheese": {},
-        "Roast Potatoes": {},
-        "Buttered Vegetables": {},
+      "Side Dishes": {
+        "Pot of Gravy": { price: 1.5, dietary: ["GF"] },
+        Stuffing: { price: 2.0 },
+        "Yorkshire Pudding": { price: 1.5, dietary: ["V"] },
+        "Cauliflower Cheese": { price: 4.0, dietary: ["V", "GF"] },
+        "Roast Potatoes": { price: 3.5, dietary: ["V", "VG", "GF"] },
+        "Buttered Vegetables": { price: 4.0, dietary: ["V", "GF"] },
       },
     },
   },

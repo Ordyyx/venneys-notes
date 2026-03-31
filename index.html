@@ -141,6 +141,84 @@ html, body {
 .item-card:hover { border-color: var(--gold); background: var(--card-hover); }
 
 .item-card .iname { font-weight: 600; font-size: 0.9rem; line-height: 1.25; }
+
+/* Price display */
+.item-card .iprice {
+  font-size: 0.78rem; color: var(--gold); font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Dietary tags */
+.item-card .idietary {
+  display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;
+}
+.dietary-tag {
+  font-size: 0.6rem; font-weight: 700; padding: 2px 5px;
+  border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.dietary-tag.v { background: #2d5a2d; color: #90ee90; }
+.dietary-tag.vg { background: #1a4a1a; color: #7cfc00; }
+.dietary-tag.gf { background: #4a3a1a; color: #ffd700; }
+.dietary-tag.gfa { background: #3a3020; color: #daa520; }
+
+/* Misc Item Button */
+.misc-item-btn {
+  position: fixed; bottom: 20px; left: 20px; z-index: 140;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); color: var(--text-mid); border: 1px solid var(--border);
+  padding: 0 16px; height: 44px; border-radius: 22px;
+  font-family: inherit; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: all 0.15s var(--ease);
+}
+.misc-item-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+.misc-item-btn:active { transform: scale(0.95); }
+.misc-item-btn .misc-icon { font-size: 1rem; }
+
+/* Misc Item Modal */
+.misc-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 350;
+  align-items: center; justify-content: center;
+}
+.misc-modal-overlay.open { display: flex; }
+
+.misc-modal {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; width: 360px; max-width: 92vw;
+  padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: modalIn 0.2s ease;
+}
+.misc-modal h3 {
+  font-size: 1rem; font-weight: 600; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.misc-modal h3 .misc-icon { font-size: 1.2rem; }
+.misc-modal label {
+  display: block; font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.misc-modal input, .misc-modal textarea {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: inherit;
+  font-size: 0.85rem; padding: 10px 12px; outline: none;
+  transition: border-color 0.15s; margin-bottom: 14px;
+}
+.misc-modal input:focus, .misc-modal textarea:focus { border-color: var(--gold); }
+.misc-modal textarea { min-height: 70px; resize: vertical; }
+.misc-modal .misc-btns { display: flex; gap: 8px; margin-top: 6px; }
+.misc-modal .misc-btns button {
+  flex: 1; padding: 10px; border-radius: 8px;
+  font-family: inherit; font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
+}
+.misc-modal .btn-misc-cancel { background: var(--card); color: var(--text-mid); }
+.misc-modal .btn-misc-add {
+  background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600;
+}
+.misc-modal .btn-misc-add:hover { filter: brightness(1.1); }
+
 /* Unavailable menu tabs */
 .menu-tab.unavail { display: none; }
 
@@ -515,6 +593,27 @@ html, body {
   <span class="order-fab-count" id="noteBadge"></span>
 </button>
 
+<!-- Misc Item Button -->
+<button class="misc-item-btn" id="miscItemBtn">
+  <span class="misc-icon">✨</span>
+  <span>Misc. Item</span>
+</button>
+
+<!-- Misc Item Modal -->
+<div class="misc-modal-overlay" id="miscModalOverlay">
+  <div class="misc-modal">
+    <h3><span class="misc-icon">✨</span> Add Misc. Item</h3>
+    <label>Item Name</label>
+    <input type="text" id="miscItemName" placeholder="e.g. Extra sauce, off-menu request…">
+    <label>Notes (optional)</label>
+    <textarea id="miscItemNote" placeholder="Any details or special instructions…"></textarea>
+    <div class="misc-btns">
+      <button class="btn-misc-cancel" id="miscCancel">Cancel</button>
+      <button class="btn-misc-add" id="miscAdd">Add to Note</button>
+    </div>
+  </div>
+</div>
+
 <!-- Choices modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modal">
@@ -687,8 +786,23 @@ if ('serviceWorker' in navigator) {
     if (!items) { itemsGridEl.innerHTML = ''; return; }
 
     itemsGridEl.innerHTML = Object.entries(items).map(([name, data]) => {
+      // Price display
+      const priceHtml = data.price ? `<div class="iprice">£${data.price.toFixed(2)}</div>` : '';
+      
+      // Dietary tags
+      let dietaryHtml = '';
+      if (data.dietary && data.dietary.length > 0) {
+        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA' };
+        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available' };
+        dietaryHtml = `<div class="idietary">${data.dietary.map(d => 
+          `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
+        ).join('')}</div>`;
+      }
+      
       return `<div class="item-card" data-name="${esc(name)}">
         <div class="iname">${name}</div>
+        ${priceHtml}
+        ${dietaryHtml}
       </div>`;
     }).join('');
 
@@ -964,6 +1078,43 @@ if ('serviceWorker' in navigator) {
   orderFabEl.addEventListener('click', openSheet);
   $('backToMenuBtn').addEventListener('click', closeSheet);
   orderSheetOverlayEl.addEventListener('click', e => { if (e.target === orderSheetOverlayEl) closeSheet(); });
+
+  // ═══════ MISC ITEM MODAL ═══════
+
+  const miscModalOverlayEl = $('miscModalOverlay');
+  const miscItemNameEl = $('miscItemName');
+  const miscItemNoteEl = $('miscItemNote');
+
+  function openMiscModal() {
+    miscItemNameEl.value = '';
+    miscItemNoteEl.value = '';
+    miscModalOverlayEl.classList.add('open');
+    setTimeout(() => miscItemNameEl.focus(), 100);
+  }
+
+  function closeMiscModal() {
+    miscModalOverlayEl.classList.remove('open');
+  }
+
+  function addMiscItem() {
+    const name = miscItemNameEl.value.trim();
+    if (!name) {
+      miscItemNameEl.focus();
+      return;
+    }
+    const userNote = miscItemNoteEl.value.trim();
+    addToNote(`✨ ${name}`, { Type: 'Misc. Item' }, userNote);
+    closeMiscModal();
+  }
+
+  $('miscItemBtn').addEventListener('click', openMiscModal);
+  $('miscCancel').addEventListener('click', closeMiscModal);
+  $('miscAdd').addEventListener('click', addMiscItem);
+  miscModalOverlayEl.addEventListener('click', e => { if (e.target === miscModalOverlayEl) closeMiscModal(); });
+  
+  // Allow Enter to submit in misc modal
+  miscItemNameEl.addEventListener('keydown', e => { if (e.key === 'Enter') addMiscItem(); });
+  miscItemNoteEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addMiscItem(); } });
 
   // ═══════ HELPERS ═══════
 
