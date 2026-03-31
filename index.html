@@ -68,9 +68,82 @@ html, body {
   letter-spacing: -0.02em; white-space: nowrap;
 }
 
+/* ── Search ── */
+.search-container {
+  flex: 1; max-width: 280px; position: relative; margin-left: auto;
+}
+.search-input {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text); font-family: inherit;
+  font-size: 0.82rem; padding: 8px 32px 8px 14px; outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus { border-color: var(--gold); background: var(--card-hover); }
+.search-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-dim);
+  font-size: 0.75rem; cursor: pointer; padding: 4px;
+  opacity: 0; transition: opacity 0.15s;
+}
+.search-container.has-query .search-clear { opacity: 1; }
+.search-clear:hover { color: var(--text); }
+
+/* ── Search Results ── */
+.search-results {
+  display: none; padding-bottom: 12px;
+}
+.search-results.active {
+  display: block;
+}
+.search-results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.search-results-title {
+  font-size: 0.85rem; color: var(--text-mid); font-weight: 500;
+}
+.search-results-count {
+  font-size: 0.75rem; color: var(--text-dim);
+}
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.search-item-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+  cursor: pointer; transition: all 0.12s var(--ease);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.search-item-card:active { transform: scale(0.97); }
+.search-item-card:hover { border-color: var(--gold); background: var(--card-hover); }
+.search-item-card .iname { font-weight: 600; font-size: 0.88rem; line-height: 1.25; }
+.search-item-card .iprice { font-size: 0.75rem; color: var(--gold); font-weight: 500; }
+.search-item-card .imeta {
+  font-size: 0.68rem; color: var(--text-dim); margin-top: 2px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.search-item-card .imeta .loc {
+  background: var(--gold-soft); color: var(--gold);
+  padding: 2px 6px; border-radius: 3px; font-weight: 500;
+}
+.search-item-card .idietary { margin-top: 4px; }
+.search-no-results {
+  text-align: center; padding: 40px 20px; color: var(--text-dim);
+}
+.search-no-results .nricon { font-size: 2rem; margin-bottom: 8px; opacity: 0.4; }
+.search-no-results p { font-size: 0.85rem; }
+.search-item-card mark {
+  background: var(--gold-mid); color: var(--text);
+  padding: 0 2px; border-radius: 2px;
+}
+
 .breadcrumbs {
   display: flex; align-items: center; gap: 6px;
   font-size: 0.8rem; color: var(--text-dim); overflow: hidden;
+  display: none; /* Hide breadcrumbs to make room for search */
 }
 .breadcrumbs span { white-space: nowrap; }
 .breadcrumbs .sep { opacity: 0.35; }
@@ -160,6 +233,7 @@ html, body {
 .dietary-tag.vg { background: #1a4a1a; color: #7cfc00; }
 .dietary-tag.gf { background: #4a3a1a; color: #ffd700; }
 .dietary-tag.gfa { background: #3a3020; color: #daa520; }
+.dietary-tag.vga { background: #1a3a1a; color: #98fb98; }
 
 /* Misc Item Button */
 .misc-item-btn {
@@ -548,12 +622,17 @@ html, body {
   <div class="menu-side">
     <div class="menu-topbar">
       <div class="brand">Venney's</div>
+      <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search menu…">
+        <button class="search-clear" id="searchClear">✕</button>
+      </div>
       <div class="breadcrumbs" id="breadcrumbs"></div>
     </div>
     <div class="menu-tabs" id="menuTabs"></div>
     <div class="section-tabs" id="sectionTabs"></div>
     <div class="section-tabs subsection-tabs" id="subsectionTabs"></div>
     <div class="items-area">
+      <div class="search-results" id="searchResults"></div>
       <div class="items-grid" id="itemsGrid"></div>
     </div>
   </div>
@@ -684,6 +763,10 @@ if ('serviceWorker' in navigator) {
   const modalBodyEl = $('modalBody');
   const orderSheetOverlayEl = $('orderSheetOverlay');
   const orderFabEl = $('orderFab');
+  const searchInputEl = $('searchInput');
+  const searchClearEl = $('searchClear');
+  const searchResultsEl = $('searchResults');
+  const searchContainerEl = searchInputEl.parentElement;
 
   // ═══════ AVAILABILITY HELPERS ═══════
 
@@ -792,8 +875,8 @@ if ('serviceWorker' in navigator) {
       // Dietary tags
       let dietaryHtml = '';
       if (data.dietary && data.dietary.length > 0) {
-        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA' };
-        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available' };
+        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA', VGA: 'VGA' };
+        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available', VGA: 'Vegan Available' };
         dietaryHtml = `<div class="idietary">${data.dietary.map(d => 
           `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
         ).join('')}</div>`;
@@ -1115,6 +1198,174 @@ if ('serviceWorker' in navigator) {
   // Allow Enter to submit in misc modal
   miscItemNameEl.addEventListener('keydown', e => { if (e.key === 'Enter') addMiscItem(); });
   miscItemNoteEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addMiscItem(); } });
+
+  // ═══════ SEARCH ═══════
+
+  let searchIndex = []; // Will hold all searchable items
+
+  function buildSearchIndex() {
+    searchIndex = [];
+    for (const [menuKey, menu] of Object.entries(MENUS)) {
+      for (const [sectionKey, section] of Object.entries(menu.sections)) {
+        if (section.subsections) {
+          for (const [subKey, items] of Object.entries(section.subsections)) {
+            for (const [itemName, itemData] of Object.entries(items)) {
+              searchIndex.push({
+                name: itemName,
+                data: itemData,
+                menu: menuKey,
+                section: sectionKey,
+                subsection: subKey,
+                path: `${menuKey} › ${sectionKey} › ${subKey}`
+              });
+            }
+          }
+        } else {
+          for (const [itemName, itemData] of Object.entries(section)) {
+            searchIndex.push({
+              name: itemName,
+              data: itemData,
+              menu: menuKey,
+              section: sectionKey,
+              subsection: null,
+              path: `${menuKey} › ${sectionKey}`
+            });
+          }
+        }
+      }
+    }
+  }
+
+  function performSearch(query) {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase().trim();
+    const words = q.split(/\s+/);
+    
+    return searchIndex.filter(item => {
+      const name = item.name.toLowerCase();
+      const path = item.path.toLowerCase();
+      // Match all words (AND search)
+      return words.every(word => name.includes(word) || path.includes(word));
+    }).sort((a, b) => {
+      // Prioritize items that start with the query
+      const aStarts = a.name.toLowerCase().startsWith(q);
+      const bStarts = b.name.toLowerCase().startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function renderSearchResults(results, query) {
+    if (!query.trim()) {
+      searchResultsEl.classList.remove('active');
+      itemsGridEl.style.display = '';
+      menuTabsEl.style.display = '';
+      sectionTabsEl.style.display = '';
+      subsectionTabsEl.style.display = '';
+      return;
+    }
+
+    menuTabsEl.style.display = 'none';
+    sectionTabsEl.style.display = 'none';
+    subsectionTabsEl.style.display = 'none';
+    itemsGridEl.style.display = 'none';
+    searchResultsEl.classList.add('active');
+
+    if (results.length === 0) {
+      searchResultsEl.innerHTML = `
+        <div class="search-no-results">
+          <div class="nricon">🔍</div>
+          <p>No items found for "${esc(query)}"</p>
+        </div>`;
+      return;
+    }
+
+    const resultsHtml = results.map(item => {
+      const priceHtml = item.data.price ? `<div class="iprice">£${item.data.price.toFixed(2)}</div>` : '';
+      
+      let dietaryHtml = '';
+      if (item.data.dietary && item.data.dietary.length > 0) {
+        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA', VGA: 'VGA' };
+        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available', VGA: 'Vegan Available' };
+        dietaryHtml = `<div class="idietary">${item.data.dietary.map(d => 
+          `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
+        ).join('')}</div>`;
+      }
+
+      return `<div class="search-item-card" data-name="${esc(item.name)}" data-menu="${esc(item.menu)}" data-section="${esc(item.section)}" data-sub="${esc(item.subsection || '')}">
+        <div class="iname">${highlightMatch(item.name, query)}</div>
+        ${priceHtml}
+        <div class="imeta"><span class="loc">${item.menu}</span> ${item.section}${item.subsection ? ' › ' + item.subsection : ''}</div>
+        ${dietaryHtml}
+      </div>`;
+    }).join('');
+
+    searchResultsEl.innerHTML = `
+      <div class="search-results-header">
+        <div class="search-results-title">Search Results</div>
+        <div class="search-results-count">${results.length} item${results.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="search-results-grid">${resultsHtml}</div>`;
+
+    // Add click handlers
+    searchResultsEl.querySelectorAll('.search-item-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const name = card.dataset.name;
+        const menuKey = card.dataset.menu;
+        const sectionKey = card.dataset.section;
+        const subKey = card.dataset.sub || null;
+
+        // Find the item data
+        const item = searchIndex.find(i => 
+          i.name === name && i.menu === menuKey && i.section === sectionKey && i.subsection === subKey
+        );
+
+        if (item) {
+          handleItemTap(item.name, item.data, card);
+          flashCard(card);
+        }
+      });
+    });
+  }
+
+  function highlightMatch(text, query) {
+    if (!query.trim()) return esc(text);
+    const escaped = esc(text);
+    const words = query.toLowerCase().trim().split(/\s+/);
+    let result = escaped;
+    words.forEach(word => {
+      const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      result = result.replace(regex, '<mark>$1</mark>');
+    });
+    return result;
+  }
+
+  function clearSearch() {
+    searchInputEl.value = '';
+    searchContainerEl.classList.remove('has-query');
+    renderSearchResults([], '');
+  }
+
+  // Search event listeners
+  searchInputEl.addEventListener('input', (e) => {
+    const query = e.target.value;
+    searchContainerEl.classList.toggle('has-query', query.length > 0);
+    const results = performSearch(query);
+    renderSearchResults(results, query);
+  });
+
+  searchInputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      clearSearch();
+      searchInputEl.blur();
+    }
+  });
+
+  searchClearEl.addEventListener('click', clearSearch);
+
+  // Build search index on load
+  buildSearchIndex();
 
   // ═══════ HELPERS ═══════
 
