@@ -331,6 +331,8 @@ html, body {
   cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
 }
 .btn-shared-close { background: var(--card); color: var(--text-mid); }
+.btn-shared-refresh { background: var(--card); color: var(--text-mid); }
+.btn-shared-refresh:hover { border-color: var(--gold); color: var(--gold); }
 .btn-shared-save { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
 .btn-shared-save:hover { filter: brightness(1.1); }
 
@@ -810,6 +812,7 @@ html, body {
     </div>
     <div class="shared-note-footer">
       <button class="btn-shared-close" id="sharedNoteClose">Close</button>
+      <button class="btn-shared-refresh" id="sharedNoteRefresh">↻ Refresh</button>
       <button class="btn-shared-save" id="sharedNoteSave">Save</button>
     </div>
   </div>
@@ -1496,9 +1499,7 @@ if ('serviceWorker' in navigator) {
   // ═══════ SHARED NOTE (JSONbin) ═══════
 
   const JSONBIN_KEY = '$2a$10$OGWyTmSHyhZnnD4ZBLhNLuJYrgR35LRoKb00dRYxOXAPkAXJS5rWK';
-  let BIN_ID = null;
-  const POLL_INTERVAL = 3000;
-  let pollTimer = null;
+  const BIN_ID = '69ce451e856a682189f1a3a7';
 
   const sharedNoteOverlayEl = $('sharedNoteOverlay');
   const cheesecakeNoteEl = $('cheesecakeNote');
@@ -1511,48 +1512,13 @@ if ('serviceWorker' in navigator) {
     $('syncText').textContent = status === 'synced' ? 'Synced' : status === 'syncing' ? 'Syncing...' : 'Error';
   }
 
-  async function findOrCreateBin() {
-    // Try to find existing bin by name
-    try {
-      const res = await fetch('https://api.jsonbin.io/v3/bins', {
-        headers: { 'X-Master-Key': JSONBIN_KEY }
-      });
-      const data = await res.json();
-      const existing = data.find(b => b.snippetMeta && b.snippetMeta.name === 'vg-flavours');
-      if (existing) {
-        BIN_ID = existing.id;
-        return BIN_ID;
-      }
-    } catch (e) { /* continue to create */ }
-
-    // Create new bin
-    const res = await fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Bin-Name': 'vg-flavours'
-      },
-      body: JSON.stringify({ cheesecake: '', pavlova: '', specials: '' })
-    });
-    const data = await res.json();
-    BIN_ID = data.metadata.id;
-    return BIN_ID;
-  }
-
   async function loadSharedNote() {
     try {
       updateSyncStatus('syncing');
-      if (!BIN_ID) await findOrCreateBin();
       const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
         headers: { 'X-Master-Key': JSONBIN_KEY }
       });
-      if (!res.ok) {
-        BIN_ID = null;
-        await findOrCreateBin();
-        updateSyncStatus('synced');
-        return;
-      }
+      if (!res.ok) throw new Error('Failed to load');
       const data = await res.json();
       cheesecakeNoteEl.value = data.record.cheesecake || '';
       pavlovaNoteEl.value = data.record.pavlova || '';
@@ -1567,8 +1533,7 @@ if ('serviceWorker' in navigator) {
   async function saveSharedNote() {
     try {
       updateSyncStatus('syncing');
-      if (!BIN_ID) await findOrCreateBin();
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1580,6 +1545,7 @@ if ('serviceWorker' in navigator) {
           specials: specialsNoteEl.value
         })
       });
+      if (!res.ok) throw new Error('Failed to save');
       updateSyncStatus('synced');
     } catch (e) {
       console.error('Save error:', e);
@@ -1588,18 +1554,17 @@ if ('serviceWorker' in navigator) {
   }
 
   function openSharedNote() {
-    loadSharedNote();
     sharedNoteOverlayEl.classList.add('open');
-    pollTimer = setInterval(loadSharedNote, POLL_INTERVAL);
+    loadSharedNote();
   }
 
   function closeSharedNote() {
     sharedNoteOverlayEl.classList.remove('open');
-    if (pollTimer) clearInterval(pollTimer);
   }
 
   $('sharedNoteBtn').addEventListener('click', openSharedNote);
   $('sharedNoteClose').addEventListener('click', closeSharedNote);
+  $('sharedNoteRefresh').addEventListener('click', loadSharedNote);
   $('sharedNoteSave').addEventListener('click', async () => {
     await saveSharedNote();
     closeSharedNote();
