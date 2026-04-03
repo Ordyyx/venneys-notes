@@ -7,6 +7,19 @@ const MENUS = {
       end: "23:00",
     },
     sections: {
+      Specials: {
+        "Adults Meal": {
+          choices: {
+            Peas: ["Mushy", "Garden"],
+            Drink: ["Carling", "Pinot"],
+          },
+        },
+        "Kids Meal": {
+          choices: {
+            Peas: ["Mushy", "Garden", "Beans"],
+          },
+        },
+      },
       "Soft Drinks": {
         subsections: {
           Common: {
