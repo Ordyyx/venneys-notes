@@ -7,19 +7,6 @@ const MENUS = {
       end: "23:00",
     },
     sections: {
-      Specials: {
-        "Adults Meal": {
-          choices: {
-            Peas: ["Mushy", "Garden"],
-            Drink: ["Carling", "Pinot"],
-          },
-        },
-        "Kids Meal": {
-          choices: {
-            Peas: ["Mushy", "Garden", "Beans"],
-          },
-        },
-      },
       "Soft Drinks": {
         subsections: {
           Common: {
@@ -59,6 +46,11 @@ const MENUS = {
               choices: {
                 Flavour: ["Orange", "Cranberry", "Apple", "Pineapple"],
                 Ice: ["Ice", "No Ice"],
+              },
+            },
+            "Table Water": {
+              choices: {
+                Glasses: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
               },
             },
           },

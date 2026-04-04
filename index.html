@@ -1,1076 +1,1900 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#111113">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<title>VG Orders</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg: #1f1f22;
-  --panel: #132014;
-  --card: #222228;
-  --card-hover: #2a2a32;
-  --border: #2e2e36;
-  --text: #eeeef0;
-  --text-mid: #a0a0ac;
-  --text-dim: #6a6a78;
-  --gold: #c9a24e;
-  --gold-soft: rgba(201,162,78,0.1);
-  --gold-mid: rgba(201,162,78,0.25);
-  --red: #d44;
-  --red-soft: rgba(221,68,68,0.12);
-  --blue: #5b8def;
-  --blue-soft: rgba(91,141,239,0.12);
-  --radius: 8px;
-  --ease: cubic-bezier(0.4,0,0.2,1);
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-  font-family: 'Outfit', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-/* ═══════════ LAYOUT ═══════════ */
-.shell { display: flex; height: 100%; width: 100%; }
-
-/* ── LEFT: Menu (now full width) ── */
-.menu-side {
-  flex: 1; display: flex; flex-direction: column; min-width: 0;
-}
-
-.menu-topbar {
-  height: 54px; display: flex; align-items: center;
-  padding: 0 20px; gap: 14px;
-  border-bottom: 1px solid var(--border);
-  background: var(--panel); flex-shrink: 0;
-}
-
-.brand {
-  font-family: 'Fraunces', serif; font-weight: 700;
-  font-size: 1.15rem; color: var(--gold);
-  letter-spacing: -0.02em; white-space: nowrap;
-}
-
-/* ── Search ── */
-.search-container {
-  flex: 1; max-width: 280px; position: relative; margin-left: auto;
-}
-.search-input {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: 20px; color: var(--text); font-family: inherit;
-  font-size: 0.82rem; padding: 8px 32px 8px 14px; outline: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-.search-input::placeholder { color: var(--text-dim); }
-.search-input:focus { border-color: var(--gold); background: var(--card-hover); }
-.search-clear {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: var(--text-dim);
-  font-size: 0.75rem; cursor: pointer; padding: 4px;
-  opacity: 0; transition: opacity 0.15s;
-}
-.search-container.has-query .search-clear { opacity: 1; }
-.search-clear:hover { color: var(--text); }
-
-/* ── Search Results ── */
-.search-results {
-  display: none; padding-bottom: 12px;
-}
-.search-results.active {
-  display: block;
-}
-.search-results-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
-}
-.search-results-title {
-  font-size: 0.85rem; color: var(--text-mid); font-weight: 500;
-}
-.search-results-count {
-  font-size: 0.75rem; color: var(--text-dim);
-}
-.search-results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
-}
-.search-item-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 14px;
-  cursor: pointer; transition: all 0.12s var(--ease);
-  display: flex; flex-direction: column; gap: 4px;
-}
-.search-item-card:active { transform: scale(0.97); }
-.search-item-card:hover { border-color: var(--gold); background: var(--card-hover); }
-.search-item-card .iname { font-weight: 600; font-size: 0.88rem; line-height: 1.25; }
-.search-item-card .iprice { font-size: 0.75rem; color: var(--gold); font-weight: 500; }
-.search-item-card .imeta {
-  font-size: 0.68rem; color: var(--text-dim); margin-top: 2px;
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
-.search-item-card .imeta .loc {
-  background: var(--gold-soft); color: var(--gold);
-  padding: 2px 6px; border-radius: 3px; font-weight: 500;
-}
-.search-item-card .idietary { margin-top: 4px; }
-.search-no-results {
-  text-align: center; padding: 40px 20px; color: var(--text-dim);
-}
-.search-no-results .nricon { font-size: 2rem; margin-bottom: 8px; opacity: 0.4; }
-.search-no-results p { font-size: 0.85rem; }
-.search-item-card mark {
-  background: var(--gold-mid); color: var(--text);
-  padding: 0 2px; border-radius: 2px;
-}
-
-.breadcrumbs {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.8rem; color: var(--text-dim); overflow: hidden;
-  display: none; /* Hide breadcrumbs to make room for search */
-}
-.breadcrumbs span { white-space: nowrap; }
-.breadcrumbs .sep { opacity: 0.35; }
-.breadcrumbs .cur { color: var(--text-mid); }
-
-/* ── Menu tabs ── */
-.menu-tabs {
-  display: flex; gap: 4px; padding: 10px 20px;
-  overflow-x: auto; flex-shrink: 0;
-  background: var(--panel); border-bottom: 1px solid var(--border);
-  scrollbar-width: none;
-}
-.menu-tabs::-webkit-scrollbar { display: none; }
-
-.menu-tab {
-  flex-shrink: 0; padding: 8px 16px; border-radius: 6px;
-  font-size: 0.85rem; font-weight: 500; color: var(--text-dim);
-  cursor: pointer; border: 1px solid transparent;
-  transition: all 0.15s var(--ease);
-  display: flex; align-items: center; gap: 7px; background: transparent;
-}
-.menu-tab:hover { color: var(--text-mid); background: var(--card); }
-.menu-tab.active {
-  color: var(--gold); background: var(--gold-soft); border-color: var(--gold-mid);
-}
-.menu-tab .ti { font-size: 1rem; }
-
-/* ── Section pills ── */
-.section-tabs {
-  display: flex; gap: 2px; padding: 8px 20px;
-  overflow-x: auto; flex-shrink: 0; background: var(--bg);
-  scrollbar-width: none;
-}
-.section-tabs::-webkit-scrollbar { display: none; }
-
-.section-tab {
-  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
-  font-size: 0.78rem; font-weight: 500; color: var(--text-dim);
-  cursor: pointer; transition: all 0.15s var(--ease);
-  border: none; background: transparent;
-}
-.section-tab:hover { color: var(--text-mid); }
-.section-tab.active { color: var(--text); background: var(--card); }
-
-.subsection-tabs { background: var(--bg); border-bottom: 1px solid var(--border); display: none; }
-.subsection-tabs.visible { display: flex; }
-.subsection-tabs .section-tab.active { color: var(--gold); background: var(--gold-soft); }
-
-/* ── Items grid ── */
-.items-area {
-  flex: 1; overflow-y: auto; padding: 12px 20px 80px;
-  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-}
-
-.items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-  gap: 8px;
-}
-
-.item-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 16px;
-  cursor: pointer; transition: all 0.12s var(--ease);
-  display: flex; flex-direction: column; gap: 3px;
-}
-.item-card:active { transform: scale(0.97); }
-.item-card:hover { border-color: var(--gold); background: var(--card-hover); }
-
-.item-card .iname { font-weight: 600; font-size: 0.9rem; line-height: 1.25; }
-
-/* Price display */
-.item-card .iprice {
-  font-size: 0.78rem; color: var(--gold); font-weight: 500;
-  margin-top: 2px;
-}
-
-/* Dietary tags */
-.item-card .idietary {
-  display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;
-}
-.dietary-tag {
-  font-size: 0.6rem; font-weight: 700; padding: 2px 5px;
-  border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em;
-}
-.dietary-tag.v { background: #2d5a2d; color: #90ee90; }
-.dietary-tag.vg { background: #1a4a1a; color: #7cfc00; }
-.dietary-tag.gf { background: #4a3a1a; color: #ffd700; }
-.dietary-tag.gfa { background: #3a3020; color: #daa520; }
-.dietary-tag.vga { background: #1a3a1a; color: #98fb98; }
-
-/* Misc Item Button */
-.misc-item-btn {
-  position: fixed; bottom: 20px; left: 20px; z-index: 140;
-  display: flex; align-items: center; gap: 8px;
-  background: var(--card); color: var(--text-mid); border: 1px solid var(--border);
-  padding: 0 16px; height: 44px; border-radius: 22px;
-  font-family: inherit; font-size: 0.82rem; font-weight: 600;
-  cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  transition: all 0.15s var(--ease);
-}
-.misc-item-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
-.misc-item-btn:active { transform: scale(0.95); }
-.misc-item-btn .misc-icon { font-size: 1rem; }
-
-/* Shared Note Button */
-.shared-note-btn {
-  position: fixed; bottom: 20px; left: 150px; z-index: 140;
-  display: flex; align-items: center; gap: 8px;
-  background: var(--card); color: var(--text-mid); border: 1px solid var(--border);
-  padding: 0 16px; height: 44px; border-radius: 22px;
-  font-family: inherit; font-size: 0.82rem; font-weight: 600;
-  cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  transition: all 0.15s var(--ease);
-}
-.shared-note-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
-.shared-note-btn:active { transform: scale(0.95); }
-
-/* Shared Note Modal */
-.shared-note-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55); z-index: 350;
-  align-items: center; justify-content: center;
-}
-.shared-note-overlay.open { display: flex; }
-
-.shared-note-modal {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 14px; width: 400px; max-width: 94vw;
-  max-height: 85vh; display: flex; flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: modalIn 0.2s ease;
-}
-
-.shared-note-header {
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-
-.shared-note-header h3 {
-  font-size: 1rem; font-weight: 600;
-  display: flex; align-items: center; gap: 8px;
-}
-
-.shared-note-sync {
-  font-size: 0.7rem; color: var(--text-dim);
-  display: flex; align-items: center; gap: 5px;
-}
-.shared-note-sync.synced { color: #4ade80; }
-.shared-note-sync.syncing { color: var(--gold); }
-.sync-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
-}
-.shared-note-sync.syncing .sync-dot { animation: syncPulse 1s infinite; }
-@keyframes syncPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-.shared-note-body {
-  flex: 1; overflow-y: auto; padding: 16px 20px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-
-.shared-note-section label {
-  display: block; font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  color: var(--text-dim); margin-bottom: 6px;
-}
-
-.shared-note-section textarea {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: inherit;
-  font-size: 0.88rem; padding: 10px 12px; outline: none;
-  min-height: 70px; resize: vertical; line-height: 1.5;
-}
-.shared-note-section textarea:focus { border-color: var(--gold); }
-.shared-note-section textarea::placeholder { color: var(--text-dim); }
-
-.shared-note-footer {
-  padding: 14px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 8px;
-}
-
-.shared-note-footer button {
-  flex: 1; padding: 10px; border-radius: 8px;
-  font-family: inherit; font-size: 0.85rem; font-weight: 500;
-  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
-}
-.btn-shared-close { background: var(--card); color: var(--text-mid); }
-.btn-shared-refresh { background: var(--card); color: var(--text-mid); }
-.btn-shared-refresh:hover { border-color: var(--gold); color: var(--gold); }
-.btn-shared-save { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
-.btn-shared-save:hover { filter: brightness(1.1); }
-
-/* Misc Item Modal */
-.misc-modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55); z-index: 350;
-  align-items: center; justify-content: center;
-}
-.misc-modal-overlay.open { display: flex; }
-
-.misc-modal {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 14px; width: 360px; max-width: 92vw;
-  padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: modalIn 0.2s ease;
-}
-.misc-modal h3 {
-  font-size: 1rem; font-weight: 600; margin-bottom: 16px;
-  display: flex; align-items: center; gap: 8px;
-}
-.misc-modal h3 .misc-icon { font-size: 1.2rem; }
-.misc-modal label {
-  display: block; font-size: 0.7rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--text-dim); margin-bottom: 6px;
-}
-.misc-modal input, .misc-modal textarea {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: inherit;
-  font-size: 0.85rem; padding: 10px 12px; outline: none;
-  transition: border-color 0.15s; margin-bottom: 14px;
-}
-.misc-modal input:focus, .misc-modal textarea:focus { border-color: var(--gold); }
-.misc-modal textarea { min-height: 70px; resize: vertical; }
-.misc-modal .misc-btns { display: flex; gap: 8px; margin-top: 6px; }
-.misc-modal .misc-btns button {
-  flex: 1; padding: 10px; border-radius: 8px;
-  font-family: inherit; font-size: 0.85rem; font-weight: 500;
-  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
-}
-.misc-modal .btn-misc-cancel { background: var(--card); color: var(--text-mid); }
-.misc-modal .btn-misc-add {
-  background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600;
-}
-.misc-modal .btn-misc-add:hover { filter: brightness(1.1); }
-
-/* Unavailable menu tabs */
-.menu-tab.unavail { display: none; }
-
-.item-card.flash { animation: tapFlash 0.35s ease; }
-@keyframes tapFlash {
-  0% { background: var(--gold-mid); border-color: var(--gold); }
-  100% { background: var(--card); border-color: var(--border); }
-}
-
-/* ═══════════ ORDER SHEET (bottom sheet overlay) ═══════════ */
-.order-sheet-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.65); z-index: 150;
-  align-items: flex-end; justify-content: center;
-}
-.order-sheet-overlay.open { display: flex; }
-
-.order-sheet {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 640px;
-  max-height: 88vh;
-  display: flex; flex-direction: column;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
-  animation: sheetUp 0.25s var(--ease);
-}
-@keyframes sheetUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-.order-sheet-handle {
-  width: 36px; height: 4px; border-radius: 2px;
-  background: var(--border); margin: 10px auto 0; flex-shrink: 0;
-}
-
-.order-sheet-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px 12px; flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
-}
-.order-sheet-title {
-  font-family: 'Fraunces', serif; font-size: 1.15rem;
-  color: var(--gold); display: flex; align-items: center; gap: 10px;
-}
-.note-count {
-  background: var(--gold-soft); color: var(--gold);
-  font-size: 0.72rem; font-weight: 700; font-family: 'Outfit', sans-serif;
-  padding: 2px 9px; border-radius: 10px;
-  min-width: 22px; text-align: center;
-}
-
-.btn-icon {
-  background: none; border: 1px solid var(--border);
-  color: var(--text-dim); width: 34px; height: 34px;
-  border-radius: 6px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem; transition: all 0.15s;
-}
-.btn-icon:hover { color: var(--text); border-color: var(--text-dim); }
-.btn-icon.danger:hover { color: var(--red); border-color: var(--red); background: var(--red-soft); }
-
-/* ── Note list ── */
-.note-list {
-  flex: 1; overflow-y: auto; padding: 6px 0;
-  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-}
-
-.note-empty {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  min-height: 120px; color: var(--text-dim); font-size: 0.85rem;
-  gap: 6px; padding: 30px; text-align: center; line-height: 1.5;
-}
-.note-empty-icon { font-size: 2rem; opacity: 0.25; }
-
-.note-item {
-  padding: 12px 20px; gap: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  animation: slideIn 0.15s ease;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.note-item-row { display: flex; align-items: center; gap: 10px; }
-
-
-.note-item-info { flex: 1; min-width: 0; }
-
-.note-item-name {
-  font-size: 0.95rem; font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.note-item-choices {
-  font-size: 0.72rem; color: var(--gold); margin-top: 1px;
-  white-space: normal; line-height: 1.4;
-}
-
-/* ── Toast ── */
-.toast {
-  background: var(--card); border: 1px solid var(--border);
-  color: var(--text); font-size: 0.82rem; font-weight: 500;
-  padding: 8px 16px; border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  animation: toastIn 0.2s ease, toastOut 0.3s ease 1.7s forwards;
-  white-space: nowrap;
-}
-.toast .toast-name { color: var(--gold); }
-@keyframes toastIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes toastOut {
-  to { opacity: 0; transform: translateY(6px); }
-}
-
-/* ═══════════ CHOICES MODAL ═══════════ */
-
-.note-item-usernote {
-  font-size: 0.7rem; color: var(--blue); font-style: italic;
-  margin-top: 1px; line-height: 1.3;
-}
-
-.note-item-actions { display: flex; gap: 2px; flex-shrink: 0; }
-
-.note-mini-btn {
-  background: none; border: none; cursor: pointer;
-  font-size: 0.72rem; padding: 4px; opacity: 0.35;
-  transition: opacity 0.12s, color 0.12s; color: var(--text-dim);
-}
-.note-mini-btn:hover { opacity: 1; }
-.note-mini-btn.del:hover { color: var(--red); }
-.note-mini-btn.edit:hover { color: var(--blue); }
-
-/* ── Order sheet footer ── */
-.order-sheet-footer {
-  padding: 12px 20px 20px; border-top: 1px solid var(--border);
-  flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
-}
-
-.note-table-input { display: flex; gap: 8px; align-items: center; }
-.note-table-input label { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; }
-.note-table-input input {
-  flex: 1; background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: inherit;
-  font-size: 0.82rem; padding: 7px 10px; outline: none;
-  transition: border-color 0.15s;
-}
-.note-table-input input:focus { border-color: var(--gold); }
-
-.sheet-footer-btns { display: flex; gap: 8px; }
-
-.btn-back-to-menu {
-  flex: 1; padding: 11px; border-radius: 8px;
-  border: 1px solid var(--border); background: var(--card);
-  color: var(--text-mid); font-family: inherit;
-  font-size: 0.85rem; font-weight: 500; cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-back-to-menu:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
-
-.btn-reset {
-  padding: 11px 16px; border-radius: 8px;
-  border: 1px solid var(--border); background: var(--card);
-  color: var(--text-dim); font-family: inherit;
-  font-size: 0.82rem; font-weight: 500; cursor: pointer;
-  transition: all 0.15s; white-space: nowrap;
-}
-.btn-reset:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
-
-/* ── FAB: View Order button (always visible) ── */
-.order-fab {
-  position: fixed; bottom: 20px; right: 20px; z-index: 140;
-  display: flex; align-items: center; gap: 10px;
-  background: var(--gold); color: var(--bg); border: none;
-  padding: 0 20px 0 16px; height: 52px; border-radius: 26px;
-  font-family: inherit; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  transition: transform 0.15s, filter 0.15s;
-}
-.order-fab:hover { filter: brightness(1.08); }
-.order-fab:active { transform: scale(0.95); }
-.order-fab-icon { font-size: 1.1rem; }
-.order-fab-label { line-height: 1; }
-.order-fab-count {
-  background: var(--bg); color: var(--gold);
-  font-size: 0.7rem; font-weight: 800;
-  min-width: 20px; height: 20px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 5px;
-}
-.order-fab-count:empty { display: none; }
-
-/* ── Toast: sit above FAB ── */
-.toast-rack {
-  position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
-  z-index: 500; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  pointer-events: none;
-}
-
-@media (max-width: 500px) {
-  .items-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-}
-
-/* ═══════════ CHOICES MODAL ═══════════ */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55); z-index: 300;
-  align-items: center; justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-
-.modal {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 14px; width: 380px; max-width: 92vw;
-  max-height: 85vh; overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: modalIn 0.2s ease;
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
-.modal-head h3 { font-size: 1rem; font-weight: 600; }
-.modal-head .modal-sub { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
-
-.modal-body { padding: 14px 20px 10px; }
-
-.choice-group { margin-bottom: 16px; }
-.choice-group-label {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 8px;
-}
-
-.choice-options { display: flex; flex-wrap: wrap; gap: 6px; }
-
-.choice-pill {
-  padding: 7px 14px; border-radius: 20px;
-  font-size: 0.82rem; font-weight: 500;
-  background: var(--card); border: 1px solid var(--border);
-  color: var(--text-mid); cursor: pointer;
-  transition: all 0.12s var(--ease);
-}
-.choice-pill:hover { border-color: var(--text-dim); color: var(--text); }
-.choice-pill.selected {
-  background: var(--gold-soft); border-color: var(--gold); color: var(--gold);
-}
-
-.modal-note-section { margin-bottom: 10px; }
-.modal-note-section label {
-  display: block; font-size: 0.7rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--text-dim); margin-bottom: 8px;
-}
-.modal-note-input {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: inherit;
-  font-size: 0.82rem; padding: 8px 12px; outline: none;
-  resize: none; min-height: 38px; transition: border-color 0.15s;
-}
-.modal-note-input:focus { border-color: var(--gold); }
-
-.modal-foot { padding: 10px 20px 18px; display: flex; gap: 8px; }
-.modal-foot button {
-  flex: 1; padding: 10px; border-radius: 8px;
-  font-family: inherit; font-size: 0.85rem; font-weight: 500;
-  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border);
-}
-.btn-modal-cancel { background: var(--card); color: var(--text-mid); }
-.btn-modal-cancel:hover { border-color: var(--text-dim); }
-.btn-modal-add {
-  background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600;
-}
-.btn-modal-add:hover { filter: brightness(1.1); }
-
-/* ═══════════ INLINE NOTE EDIT ═══════════ */
-.inline-note-edit { margin-top: 6px; display: flex; gap: 6px; }
-.inline-note-edit input {
-  flex: 1; background: var(--card); border: 1px solid var(--border);
-  border-radius: 5px; color: var(--text); font-family: inherit;
-  font-size: 0.75rem; padding: 5px 8px; outline: none;
-}
-.inline-note-edit input:focus { border-color: var(--blue); }
-.inline-note-edit button {
-  background: var(--blue-soft); border: 1px solid rgba(91,141,239,0.3);
-  color: var(--blue); border-radius: 5px; padding: 0 10px;
-  cursor: pointer; font-size: 0.72rem; font-weight: 600;
-  font-family: inherit; transition: all 0.12s;
-}
-.inline-note-edit button:hover { filter: brightness(1.2); }
-
-/* ═══════════ CONFIRM DIALOG ═══════════ */
-.confirm-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6); z-index: 400;
-  align-items: center; justify-content: center;
-}
-.confirm-overlay.open { display: flex; }
-
-.confirm-box {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 12px; padding: 28px 24px 20px;
-  width: 300px; text-align: center;
-}
-.confirm-box p { font-size: 0.92rem; margin-bottom: 20px; line-height: 1.5; color: var(--text-mid); }
-.confirm-box .cbtns { display: flex; gap: 8px; }
-.confirm-box button {
-  flex: 1; padding: 10px; border-radius: 6px; font-family: inherit;
-  font-size: 0.85rem; font-weight: 500; cursor: pointer;
-  border: 1px solid var(--border); transition: all 0.15s;
-}
-.btn-ccancel { background: var(--card); color: var(--text-mid); }
-.btn-cconfirm { background: var(--red); color: #fff; border-color: var(--red) !important; }
-
-/* ═══════════ CONFIRM DIALOG ═══════════ */
-</style>
-</head>
-<body>
-
-<div id="toastRack" class="toast-rack"></div>
-<div class="shell">
-  <div class="menu-side">
-    <div class="menu-topbar">
-      <div class="brand">Venney's</div>
-      <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search menu…">
-        <button class="search-clear" id="searchClear">✕</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="theme-color" content="#111113" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+    <title>VG Orders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #1f1f22;
+        --panel: #132014;
+        --card: #222228;
+        --card-hover: #2a2a32;
+        --border: #2e2e36;
+        --text: #eeeef0;
+        --text-mid: #a0a0ac;
+        --text-dim: #6a6a78;
+        --gold: #c9a24e;
+        --gold-soft: rgba(201, 162, 78, 0.1);
+        --gold-mid: rgba(201, 162, 78, 0.25);
+        --red: #d44;
+        --red-soft: rgba(221, 68, 68, 0.12);
+        --blue: #5b8def;
+        --blue-soft: rgba(91, 141, 239, 0.12);
+        --radius: 8px;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+
+      /* ═══════════ LAYOUT ═══════════ */
+      .shell {
+        display: flex;
+        height: 100%;
+        width: 100%;
+      }
+
+      /* ── LEFT: Menu (now full width) ── */
+      .menu-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .menu-topbar {
+        height: 54px;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 14px;
+        border-bottom: 1px solid var(--border);
+        background: var(--panel);
+        flex-shrink: 0;
+      }
+
+      .brand {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--gold);
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+
+      /* ── Search ── */
+      .search-container {
+        flex: 1;
+        max-width: 280px;
+        position: relative;
+        margin-left: auto;
+      }
+      .search-input {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        padding: 8px 32px 8px 14px;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .search-input::placeholder {
+        color: var(--text-dim);
+      }
+      .search-input:focus {
+        border-color: var(--gold);
+        background: var(--card-hover);
+      }
+      .search-clear {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        font-size: 0.75rem;
+        cursor: pointer;
+        padding: 4px;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .search-container.has-query .search-clear {
+        opacity: 1;
+      }
+      .search-clear:hover {
+        color: var(--text);
+      }
+
+      /* ── Search Results ── */
+      .search-results {
+        display: none;
+        padding-bottom: 12px;
+      }
+      .search-results.active {
+        display: block;
+      }
+      .search-results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0 12px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 12px;
+      }
+      .search-results-title {
+        font-size: 0.85rem;
+        color: var(--text-mid);
+        font-weight: 500;
+      }
+      .search-results-count {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+      }
+      .search-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 8px;
+      }
+      .search-item-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        cursor: pointer;
+        transition: all 0.12s var(--ease);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .search-item-card:active {
+        transform: scale(0.97);
+      }
+      .search-item-card:hover {
+        border-color: var(--gold);
+        background: var(--card-hover);
+      }
+      .search-item-card .iname {
+        font-weight: 600;
+        font-size: 0.88rem;
+        line-height: 1.25;
+      }
+      .search-item-card .iprice {
+        font-size: 0.75rem;
+        color: var(--gold);
+        font-weight: 500;
+      }
+      .search-item-card .imeta {
+        font-size: 0.68rem;
+        color: var(--text-dim);
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .search-item-card .imeta .loc {
+        background: var(--gold-soft);
+        color: var(--gold);
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 500;
+      }
+      .search-item-card .idietary {
+        margin-top: 4px;
+      }
+      .search-no-results {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-dim);
+      }
+      .search-no-results .nricon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        opacity: 0.4;
+      }
+      .search-no-results p {
+        font-size: 0.85rem;
+      }
+      .search-item-card mark {
+        background: var(--gold-mid);
+        color: var(--text);
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+
+      .breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        overflow: hidden;
+        display: none; /* Hide breadcrumbs to make room for search */
+      }
+      .breadcrumbs span {
+        white-space: nowrap;
+      }
+      .breadcrumbs .sep {
+        opacity: 0.35;
+      }
+      .breadcrumbs .cur {
+        color: var(--text-mid);
+      }
+
+      /* ── Menu tabs ── */
+      .menu-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 10px 20px;
+        overflow-x: auto;
+        flex-shrink: 0;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none;
+      }
+      .menu-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .menu-tab {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-dim);
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s var(--ease);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+      }
+      .menu-tab:hover {
+        color: var(--text-mid);
+        background: var(--card);
+      }
+      .menu-tab.active {
+        color: var(--gold);
+        background: var(--gold-soft);
+        border-color: var(--gold-mid);
+      }
+      .menu-tab .ti {
+        font-size: 1rem;
+      }
+
+      /* ── Section pills ── */
+      .section-tabs {
+        display: flex;
+        gap: 2px;
+        padding: 8px 20px;
+        overflow-x: auto;
+        flex-shrink: 0;
+        background: var(--bg);
+        scrollbar-width: none;
+      }
+      .section-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .section-tab {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.15s var(--ease);
+        border: none;
+        background: transparent;
+      }
+      .section-tab:hover {
+        color: var(--text-mid);
+      }
+      .section-tab.active {
+        color: var(--text);
+        background: var(--card);
+      }
+
+      .subsection-tabs {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        display: none;
+      }
+      .subsection-tabs.visible {
+        display: flex;
+      }
+      .subsection-tabs .section-tab.active {
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+
+      /* ── Items grid ── */
+      .items-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 20px 80px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+        gap: 8px;
+      }
+
+      .item-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.12s var(--ease);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .item-card:active {
+        transform: scale(0.97);
+      }
+      .item-card:hover {
+        border-color: var(--gold);
+        background: var(--card-hover);
+      }
+
+      .item-card .iname {
+        font-weight: 600;
+        font-size: 0.9rem;
+        line-height: 1.25;
+      }
+
+      /* Price display */
+      .item-card .iprice {
+        font-size: 0.78rem;
+        color: var(--gold);
+        font-weight: 500;
+        margin-top: 2px;
+      }
+
+      /* Dietary tags */
+      .item-card .idietary {
+        display: flex;
+        gap: 4px;
+        margin-top: 4px;
+        flex-wrap: wrap;
+      }
+      .dietary-tag {
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 2px 5px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .dietary-tag.v {
+        background: #2d5a2d;
+        color: #90ee90;
+      }
+      .dietary-tag.vg {
+        background: #1a4a1a;
+        color: #7cfc00;
+      }
+      .dietary-tag.gf {
+        background: #4a3a1a;
+        color: #ffd700;
+      }
+      .dietary-tag.gfa {
+        background: #3a3020;
+        color: #daa520;
+      }
+      .dietary-tag.vga {
+        background: #1a3a1a;
+        color: #98fb98;
+      }
+
+      /* Misc Item Button */
+      .misc-item-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 140;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card);
+        color: var(--text-mid);
+        border: 1px solid var(--border);
+        padding: 0 16px;
+        height: 44px;
+        border-radius: 22px;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.15s var(--ease);
+      }
+      .misc-item-btn:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+      .misc-item-btn:active {
+        transform: scale(0.95);
+      }
+      .misc-item-btn .misc-icon {
+        font-size: 1rem;
+      }
+
+      /* Shared Note Button */
+      .shared-note-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 150px;
+        z-index: 140;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card);
+        color: var(--text-mid);
+        border: 1px solid var(--border);
+        padding: 0 16px;
+        height: 44px;
+        border-radius: 22px;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.15s var(--ease);
+      }
+      .shared-note-btn:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+      .shared-note-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Shared Note Modal */
+      .shared-note-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 350;
+        align-items: center;
+        justify-content: center;
+      }
+      .shared-note-overlay.open {
+        display: flex;
+      }
+
+      .shared-note-modal {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 400px;
+        max-width: 94vw;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: modalIn 0.2s ease;
+      }
+
+      .shared-note-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .shared-note-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .shared-note-sync {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .shared-note-sync.synced {
+        color: #4ade80;
+      }
+      .shared-note-sync.syncing {
+        color: var(--gold);
+      }
+      .sync-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .shared-note-sync.syncing .sync-dot {
+        animation: syncPulse 1s infinite;
+      }
+      @keyframes syncPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .shared-note-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .shared-note-section label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+
+      .shared-note-section textarea {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        padding: 10px 12px;
+        outline: none;
+        min-height: 70px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .shared-note-section textarea:focus {
+        border-color: var(--gold);
+      }
+      .shared-note-section textarea::placeholder {
+        color: var(--text-dim);
+      }
+
+      .shared-note-footer {
+        padding: 14px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 8px;
+      }
+
+      .shared-note-footer button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid var(--border);
+      }
+      .btn-shared-close {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .btn-shared-refresh {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .btn-shared-refresh:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .btn-shared-save {
+        background: var(--gold);
+        color: var(--bg);
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .btn-shared-save:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Misc Item Modal */
+      .misc-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 350;
+        align-items: center;
+        justify-content: center;
+      }
+      .misc-modal-overlay.open {
+        display: flex;
+      }
+
+      .misc-modal {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 360px;
+        max-width: 92vw;
+        padding: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: modalIn 0.2s ease;
+      }
+      .misc-modal h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .misc-modal h3 .misc-icon {
+        font-size: 1.2rem;
+      }
+      .misc-modal label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+      .misc-modal input,
+      .misc-modal textarea {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.85rem;
+        padding: 10px 12px;
+        outline: none;
+        transition: border-color 0.15s;
+        margin-bottom: 14px;
+      }
+      .misc-modal input:focus,
+      .misc-modal textarea:focus {
+        border-color: var(--gold);
+      }
+      .misc-modal textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+      .misc-modal .misc-btns {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .misc-modal .misc-btns button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid var(--border);
+      }
+      .misc-modal .btn-misc-cancel {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .misc-modal .btn-misc-add {
+        background: var(--gold);
+        color: var(--bg);
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .misc-modal .btn-misc-add:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Unavailable menu tabs */
+      .menu-tab.unavail {
+        display: none;
+      }
+
+      .item-card.flash {
+        animation: tapFlash 0.35s ease;
+      }
+      @keyframes tapFlash {
+        0% {
+          background: var(--gold-mid);
+          border-color: var(--gold);
+        }
+        100% {
+          background: var(--card);
+          border-color: var(--border);
+        }
+      }
+
+      /* ═══════════ ORDER SHEET (bottom sheet overlay) ═══════════ */
+      .order-sheet-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 150;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .order-sheet-overlay.open {
+        display: flex;
+      }
+
+      .order-sheet {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-width: 640px;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+        animation: sheetUp 0.25s var(--ease);
+      }
+      @keyframes sheetUp {
+        from {
+          transform: translateY(40px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .order-sheet-handle {
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--border);
+        margin: 10px auto 0;
+        flex-shrink: 0;
+      }
+
+      .order-sheet-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px 12px;
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .order-sheet-title {
+        font-family: "Fraunces", serif;
+        font-size: 1.15rem;
+        color: var(--gold);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .note-count {
+        background: var(--gold-soft);
+        color: var(--gold);
+        font-size: 0.72rem;
+        font-weight: 700;
+        font-family: "Outfit", sans-serif;
+        padding: 2px 9px;
+        border-radius: 10px;
+        min-width: 22px;
+        text-align: center;
+      }
+
+      .btn-icon {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: all 0.15s;
+      }
+      .btn-icon:hover {
+        color: var(--text);
+        border-color: var(--text-dim);
+      }
+      .btn-icon.danger:hover {
+        color: var(--red);
+        border-color: var(--red);
+        background: var(--red-soft);
+      }
+
+      /* ── Note list ── */
+      .note-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 6px 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      .note-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        gap: 6px;
+        padding: 30px;
+        text-align: center;
+        line-height: 1.5;
+      }
+      .note-empty-icon {
+        font-size: 2rem;
+        opacity: 0.25;
+      }
+
+      .note-item {
+        padding: 12px 20px;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        animation: slideIn 0.15s ease;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .note-item-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .note-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .note-item-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .note-item-choices {
+        font-size: 0.72rem;
+        color: var(--gold);
+        margin-top: 1px;
+        white-space: normal;
+        line-height: 1.4;
+      }
+
+      /* ── Toast ── */
+      .toast {
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        animation:
+          toastIn 0.2s ease,
+          toastOut 0.3s ease 1.7s forwards;
+        white-space: nowrap;
+      }
+      .toast .toast-name {
+        color: var(--gold);
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes toastOut {
+        to {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+      }
+
+      /* ═══════════ CHOICES MODAL ═══════════ */
+
+      .note-item-usernote {
+        font-size: 0.7rem;
+        color: var(--blue);
+        font-style: italic;
+        margin-top: 1px;
+        line-height: 1.3;
+      }
+
+      .note-item-actions {
+        display: flex;
+        gap: 2px;
+        flex-shrink: 0;
+      }
+
+      .note-mini-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.72rem;
+        padding: 4px;
+        opacity: 0.35;
+        transition:
+          opacity 0.12s,
+          color 0.12s;
+        color: var(--text-dim);
+      }
+      .note-mini-btn:hover {
+        opacity: 1;
+      }
+      .note-mini-btn.del:hover {
+        color: var(--red);
+      }
+      .note-mini-btn.edit:hover {
+        color: var(--blue);
+      }
+
+      /* ── Order sheet footer ── */
+      .order-sheet-footer {
+        padding: 12px 20px 20px;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .note-table-input {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .note-table-input label {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        white-space: nowrap;
+      }
+      .note-table-input input {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        padding: 7px 10px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .note-table-input input:focus {
+        border-color: var(--gold);
+      }
+
+      .sheet-footer-btns {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-back-to-menu {
+        flex: 1;
+        padding: 11px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text-mid);
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-back-to-menu:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+
+      .btn-reset {
+        padding: 11px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text-dim);
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .btn-reset:hover {
+        border-color: var(--red);
+        color: var(--red);
+        background: var(--red-soft);
+      }
+
+      /* ── FAB: View Order button (always visible) ── */
+      .order-fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 140;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--gold);
+        color: var(--bg);
+        border: none;
+        padding: 0 20px 0 16px;
+        height: 52px;
+        border-radius: 26px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        transition:
+          transform 0.15s,
+          filter 0.15s;
+      }
+      .order-fab:hover {
+        filter: brightness(1.08);
+      }
+      .order-fab:active {
+        transform: scale(0.95);
+      }
+      .order-fab-icon {
+        font-size: 1.1rem;
+      }
+      .order-fab-label {
+        line-height: 1;
+      }
+      .order-fab-count {
+        background: var(--bg);
+        color: var(--gold);
+        font-size: 0.7rem;
+        font-weight: 800;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+      }
+      .order-fab-count:empty {
+        display: none;
+      }
+
+      /* ── Toast: sit above FAB ── */
+      .toast-rack {
+        position: fixed;
+        bottom: 84px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+      }
+
+      @media (max-width: 500px) {
+        .items-grid {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+      }
+
+      /* ═══════════ CHOICES MODAL ═══════════ */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 300;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 380px;
+        max-width: 92vw;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: modalIn 0.2s ease;
+      }
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .modal-head {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-head h3 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .modal-head .modal-sub {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        margin-top: 2px;
+      }
+
+      .modal-body {
+        padding: 14px 20px 10px;
+      }
+
+      .choice-group {
+        margin-bottom: 16px;
+      }
+      .choice-group-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+      }
+
+      .choice-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .choice-pill {
+        padding: 7px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--text-mid);
+        cursor: pointer;
+        transition: all 0.12s var(--ease);
+      }
+      .choice-pill:hover {
+        border-color: var(--text-dim);
+        color: var(--text);
+      }
+      .choice-pill.selected {
+        background: var(--gold-soft);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .modal-note-section {
+        margin-bottom: 10px;
+      }
+      .modal-note-section label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+      }
+      .modal-note-input {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        padding: 8px 12px;
+        outline: none;
+        resize: none;
+        min-height: 38px;
+        transition: border-color 0.15s;
+      }
+      .modal-note-input:focus {
+        border-color: var(--gold);
+      }
+
+      .modal-foot {
+        padding: 10px 20px 18px;
+        display: flex;
+        gap: 8px;
+      }
+      .modal-foot button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid var(--border);
+      }
+      .btn-modal-cancel {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .btn-modal-cancel:hover {
+        border-color: var(--text-dim);
+      }
+      .btn-modal-add {
+        background: var(--gold);
+        color: var(--bg);
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .btn-modal-add:hover {
+        filter: brightness(1.1);
+      }
+
+      /* ═══════════ INLINE NOTE EDIT ═══════════ */
+      .inline-note-edit {
+        margin-top: 6px;
+        display: flex;
+        gap: 6px;
+      }
+      .inline-note-edit input {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.75rem;
+        padding: 5px 8px;
+        outline: none;
+      }
+      .inline-note-edit input:focus {
+        border-color: var(--blue);
+      }
+      .inline-note-edit button {
+        background: var(--blue-soft);
+        border: 1px solid rgba(91, 141, 239, 0.3);
+        color: var(--blue);
+        border-radius: 5px;
+        padding: 0 10px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 600;
+        font-family: inherit;
+        transition: all 0.12s;
+      }
+      .inline-note-edit button:hover {
+        filter: brightness(1.2);
+      }
+
+      /* ═══════════ CONFIRM DIALOG ═══════════ */
+      .confirm-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 400;
+        align-items: center;
+        justify-content: center;
+      }
+      .confirm-overlay.open {
+        display: flex;
+      }
+
+      .confirm-box {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 24px 20px;
+        width: 300px;
+        text-align: center;
+      }
+      .confirm-box p {
+        font-size: 0.92rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+        color: var(--text-mid);
+      }
+      .confirm-box .cbtns {
+        display: flex;
+        gap: 8px;
+      }
+      .confirm-box button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        transition: all 0.15s;
+      }
+      .btn-ccancel {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .btn-cconfirm {
+        background: var(--red);
+        color: #fff;
+        border-color: var(--red) !important;
+      }
+
+      /* ═══════════ CONFIRM DIALOG ═══════════ */
+    </style>
+  </head>
+  <body>
+    <div id="toastRack" class="toast-rack"></div>
+    <div class="shell">
+      <div class="menu-side">
+        <div class="menu-topbar">
+          <div class="brand">Venney's</div>
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Search menu…"
+            />
+            <button class="search-clear" id="searchClear">✕</button>
+          </div>
+          <div class="breadcrumbs" id="breadcrumbs"></div>
+        </div>
+        <div class="menu-tabs" id="menuTabs"></div>
+        <div class="section-tabs" id="sectionTabs"></div>
+        <div class="section-tabs subsection-tabs" id="subsectionTabs"></div>
+        <div class="items-area">
+          <div class="search-results" id="searchResults"></div>
+          <div class="items-grid" id="itemsGrid"></div>
+        </div>
       </div>
-      <div class="breadcrumbs" id="breadcrumbs"></div>
     </div>
-    <div class="menu-tabs" id="menuTabs"></div>
-    <div class="section-tabs" id="sectionTabs"></div>
-    <div class="section-tabs subsection-tabs" id="subsectionTabs"></div>
-    <div class="items-area">
-      <div class="search-results" id="searchResults"></div>
-      <div class="items-grid" id="itemsGrid"></div>
-    </div>
-  </div>
 
-</div>
-
-<!-- Order Sheet (bottom sheet) -->
-<div class="order-sheet-overlay" id="orderSheetOverlay">
-  <div class="order-sheet" id="orderSheet">
-    <div class="order-sheet-handle"></div>
-    <div class="order-sheet-header">
-      <div class="order-sheet-title">
-        Current Order <span class="note-count" id="noteCount">0</span>
-      </div>
-      <button class="btn-icon danger" id="resetBtn" title="Clear order">✕</button>
-    </div>
-    <div class="note-list" id="noteList">
-      <div class="note-empty"><div class="note-empty-icon">📝</div>Tap items to add them here</div>
-    </div>
-    <div class="order-sheet-footer">
-      <div class="note-table-input">
-        <label>Table / Name</label>
-        <input type="text" id="tableInput" placeholder="e.g. Table 4, John…">
-      </div>
-      <div class="sheet-footer-btns">
-        <button class="btn-back-to-menu" id="backToMenuBtn">← Back to Menu</button>
-        <button class="btn-reset" id="clearBtn">Clear Note</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FAB: View Order -->
-<button class="order-fab" id="orderFab">
-  <span class="order-fab-icon">📋</span>
-  <span class="order-fab-label">View Order</span>
-  <span class="order-fab-count" id="noteBadge"></span>
-</button>
-
-<!-- Misc Item Button -->
-<button class="misc-item-btn" id="miscItemBtn">
-  <span class="misc-icon">✨</span>
-  <span>Misc. Item</span>
-</button>
-
-<!-- Misc Item Modal -->
-<div class="misc-modal-overlay" id="miscModalOverlay">
-  <div class="misc-modal">
-    <h3><span class="misc-icon">✨</span> Add Misc. Item</h3>
-    <label>Item Name</label>
-    <input type="text" id="miscItemName" placeholder="e.g. Extra sauce, off-menu request…">
-    <label>Notes (optional)</label>
-    <textarea id="miscItemNote" placeholder="Any details or special instructions…"></textarea>
-    <div class="misc-btns">
-      <button class="btn-misc-cancel" id="miscCancel">Cancel</button>
-      <button class="btn-misc-add" id="miscAdd">Add to Note</button>
-    </div>
-  </div>
-</div>
-
-<!-- Shared Note Button -->
-<button class="shared-note-btn" id="sharedNoteBtn">
-  <span>📋</span>
-  <span>Flavours</span>
-</button>
-
-<!-- Shared Note Modal -->
-<div class="shared-note-overlay" id="sharedNoteOverlay">
-  <div class="shared-note-modal">
-    <div class="shared-note-header">
-      <h3>📋 Flavours &amp; Specials</h3>
-      <div class="shared-note-sync" id="sharedNoteSync">
-        <span class="sync-dot"></span>
-        <span id="syncText">Synced</span>
+    <!-- Order Sheet (bottom sheet) -->
+    <div class="order-sheet-overlay" id="orderSheetOverlay">
+      <div class="order-sheet" id="orderSheet">
+        <div class="order-sheet-handle"></div>
+        <div class="order-sheet-header">
+          <div class="order-sheet-title">
+            Current Order <span class="note-count" id="noteCount">0</span>
+          </div>
+          <button class="btn-icon danger" id="resetBtn" title="Clear order">
+            ✕
+          </button>
+        </div>
+        <div class="note-list" id="noteList">
+          <div class="note-empty">
+            <div class="note-empty-icon">📝</div>
+            Tap items to add them here
+          </div>
+        </div>
+        <div class="order-sheet-footer">
+          <div class="note-table-input">
+            <label>Table / Name</label>
+            <input
+              type="text"
+              id="tableInput"
+              placeholder="e.g. Table 4, John…"
+            />
+          </div>
+          <div class="sheet-footer-btns">
+            <button class="btn-back-to-menu" id="backToMenuBtn">
+              ← Back to Menu
+            </button>
+            <button class="btn-reset" id="clearBtn">Clear Note</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="shared-note-body">
-      <div class="shared-note-section">
-        <label>🍰 Cheesecake Flavours</label>
-        <textarea id="cheesecakeNote" placeholder="e.g. Biscoff, Oreo, Strawberry..."></textarea>
+
+    <!-- FAB: View Order -->
+    <button class="order-fab" id="orderFab">
+      <span class="order-fab-icon">📋</span>
+      <span class="order-fab-label">View Order</span>
+      <span class="order-fab-count" id="noteBadge"></span>
+    </button>
+
+    <!-- Misc Item Button -->
+    <button class="misc-item-btn" id="miscItemBtn">
+      <span class="misc-icon">✨</span>
+      <span>Misc. Item</span>
+    </button>
+
+    <!-- Misc Item Modal -->
+    <div class="misc-modal-overlay" id="miscModalOverlay">
+      <div class="misc-modal">
+        <h3><span class="misc-icon">✨</span> Add Misc. Item</h3>
+        <label>Item Name</label>
+        <input
+          type="text"
+          id="miscItemName"
+          placeholder="e.g. Extra sauce, off-menu request…"
+        />
+        <label>Notes (optional)</label>
+        <textarea
+          id="miscItemNote"
+          placeholder="Any details or special instructions…"
+        ></textarea>
+        <div class="misc-btns">
+          <button class="btn-misc-cancel" id="miscCancel">Cancel</button>
+          <button class="btn-misc-add" id="miscAdd">Add to Note</button>
+        </div>
       </div>
-      <div class="shared-note-section">
-        <label>🧁 Pavlova Flavours</label>
-        <textarea id="pavlovaNote" placeholder="e.g. Mixed Berry, Passion Fruit..."></textarea>
+    </div>
+
+    <!-- Shared Note Button -->
+    <button class="shared-note-btn" id="sharedNoteBtn">
+      <span>📋</span>
+      <span>Specials</span>
+    </button>
+
+    <!-- Shared Note Modal -->
+    <div class="shared-note-overlay" id="sharedNoteOverlay">
+      <div class="shared-note-modal">
+        <div class="shared-note-header">
+          <h3>📋 Today's Specials</h3>
+          <div class="shared-note-sync" id="sharedNoteSync">
+            <span class="sync-dot"></span>
+            <span id="syncText">Synced</span>
+          </div>
+        </div>
+        <div class="shared-note-body">
+          <div class="shared-note-section">
+            <label>🍲 Soup</label>
+            <textarea
+              id="soupNote"
+              placeholder="e.g. Tomato Basil, French Onion..."
+            ></textarea>
+          </div>
+          <div class="shared-note-section">
+            <label>🍰 Cheesecake</label>
+            <textarea
+              id="cheesecakeNote"
+              placeholder="e.g. Biscoff, Oreo, Strawberry..."
+            ></textarea>
+          </div>
+          <div class="shared-note-section">
+            <label>🧁 Pavlova</label>
+            <textarea
+              id="pavlovaNote"
+              placeholder="e.g. Mixed Berry, Passion Fruit..."
+            ></textarea>
+          </div>
+          <div class="shared-note-section">
+            <label>🔥 Baked Alaska</label>
+            <textarea
+              id="bakedAlaskaNote"
+              placeholder="e.g. Chocolate, Raspberry..."
+            ></textarea>
+          </div>
+          <div class="shared-note-section">
+            <label>🍮 Crème Brûlée</label>
+            <textarea
+              id="cremeBruleeNote"
+              placeholder="e.g. Classic Vanilla, Lavender..."
+            ></textarea>
+          </div>
+          <div class="shared-note-section">
+            <label>✨ Other Specials</label>
+            <textarea
+              id="otherSpecialsNote"
+              placeholder="Any other specials today..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="shared-note-footer">
+          <button class="btn-shared-close" id="sharedNoteClose">Close</button>
+          <button class="btn-shared-refresh" id="sharedNoteRefresh">
+            ↻ Refresh
+          </button>
+          <button class="btn-shared-save" id="sharedNoteSave">Save</button>
+        </div>
       </div>
-      <div class="shared-note-section">
-        <label>✨ Specials</label>
-        <textarea id="specialsNote" placeholder="Any specials today..."></textarea>
+    </div>
+
+    <!-- Choices modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal" id="modal">
+        <div class="modal-head">
+          <h3 id="modalTitle"></h3>
+          <div class="modal-sub" id="modalSub"></div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot">
+          <button class="btn-modal-cancel" id="modalCancel">Cancel</button>
+          <button class="btn-modal-add" id="modalAdd">Add to Note</button>
+        </div>
       </div>
     </div>
-    <div class="shared-note-footer">
-      <button class="btn-shared-close" id="sharedNoteClose">Close</button>
-      <button class="btn-shared-refresh" id="sharedNoteRefresh">↻ Refresh</button>
-      <button class="btn-shared-save" id="sharedNoteSave">Save</button>
+
+    <!-- Confirm -->
+    <div class="confirm-overlay" id="confirmOverlay">
+      <div class="confirm-box">
+        <p>Clear the current note and start fresh?</p>
+        <div class="cbtns">
+          <button class="btn-ccancel" id="confirmCancel">Cancel</button>
+          <button class="btn-cconfirm" id="confirmYes">Clear Note</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- Choices modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modal">
-    <div class="modal-head">
-      <h3 id="modalTitle"></h3>
-      <div class="modal-sub" id="modalSub"></div>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-foot">
-      <button class="btn-modal-cancel" id="modalCancel">Cancel</button>
-      <button class="btn-modal-add" id="modalAdd">Add to Note</button>
-    </div>
-  </div>
-</div>
+    <script src="data.js"></script>
+    <script>
+      // ── Register Service Worker ──
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(() => {});
+      }
 
-<!-- Confirm -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <p>Clear the current note and start fresh?</p>
-    <div class="cbtns">
-      <button class="btn-ccancel" id="confirmCancel">Cancel</button>
-      <button class="btn-cconfirm" id="confirmYes">Clear Note</button>
-    </div>
-  </div>
-</div>
+      (() => {
+        // ══════════════════════════════════════════════
+        // DEBUG: Add ?debug to the URL to show ALL menus
+        // regardless of availability. No code change needed.
+        // e.g. index.html?debug
+        const DEBUG_SHOW_ALL_MENUS = location.search.includes("debug");
+        // ══════════════════════════════════════════════
 
-<script src="data.js"></script>
-<script>
-// ── Register Service Worker ──
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+        // ── State ──
+        let activeMenu = null;
+        let activeSection = null;
+        let activeSubsection = null;
+        let note = [];
+        let noteId = 0;
+        let editingNoteId = null;
 
-(() => {
-  // ══════════════════════════════════════════════
-  // DEBUG: Add ?debug to the URL to show ALL menus
-  // regardless of availability. No code change needed.
-  // e.g. index.html?debug
-  const DEBUG_SHOW_ALL_MENUS = location.search.includes('debug');
-  // ══════════════════════════════════════════════
+        let modalItemName = "";
+        let modalItemData = {};
+        let modalSelections = {};
 
-  // ── State ──
-  let activeMenu = null;
-  let activeSection = null;
-  let activeSubsection = null;
-  let note = [];
-  let noteId = 0;
-  let editingNoteId = null;
+        const $ = (id) => document.getElementById(id);
+        const menuTabsEl = $("menuTabs");
+        const sectionTabsEl = $("sectionTabs");
+        const subsectionTabsEl = $("subsectionTabs");
+        const itemsGridEl = $("itemsGrid");
+        const breadcrumbsEl = $("breadcrumbs");
+        const noteListEl = $("noteList");
+        const noteCountEl = $("noteCount");
+        const noteBadgeEl = $("noteBadge");
+        const tableInputEl = $("tableInput");
+        const confirmOverlayEl = $("confirmOverlay");
+        const modalOverlayEl = $("modalOverlay");
+        const modalTitleEl = $("modalTitle");
+        const modalSubEl = $("modalSub");
+        const modalBodyEl = $("modalBody");
+        const orderSheetOverlayEl = $("orderSheetOverlay");
+        const orderFabEl = $("orderFab");
+        const searchInputEl = $("searchInput");
+        const searchClearEl = $("searchClear");
+        const searchResultsEl = $("searchResults");
+        const searchContainerEl = searchInputEl.parentElement;
 
-  let modalItemName = '';
-  let modalItemData = {};
-  let modalSelections = {};
+        // ═══════ AVAILABILITY HELPERS ═══════
 
-  const $ = id => document.getElementById(id);
-  const menuTabsEl = $('menuTabs');
-  const sectionTabsEl = $('sectionTabs');
-  const subsectionTabsEl = $('subsectionTabs');
-  const itemsGridEl = $('itemsGrid');
-  const breadcrumbsEl = $('breadcrumbs');
-  const noteListEl = $('noteList');
-  const noteCountEl = $('noteCount');
-  const noteBadgeEl = $('noteBadge');
-  const tableInputEl = $('tableInput');
-  const confirmOverlayEl = $('confirmOverlay');
-  const modalOverlayEl = $('modalOverlay');
-  const modalTitleEl = $('modalTitle');
-  const modalSubEl = $('modalSub');
-  const modalBodyEl = $('modalBody');
-  const orderSheetOverlayEl = $('orderSheetOverlay');
-  const orderFabEl = $('orderFab');
-  const searchInputEl = $('searchInput');
-  const searchClearEl = $('searchClear');
-  const searchResultsEl = $('searchResults');
-  const searchContainerEl = searchInputEl.parentElement;
+        function isMenuAvailable(menuKey) {
+          if (DEBUG_SHOW_ALL_MENUS) return true;
+          const avail = MENUS[menuKey].availability;
+          if (!avail) return true;
 
-  // ═══════ AVAILABILITY HELPERS ═══════
+          const now = new Date();
+          const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const todayDay = days[now.getDay()];
+          if (!avail.days.includes(todayDay)) return false;
 
-  function isMenuAvailable(menuKey) {
-    if (DEBUG_SHOW_ALL_MENUS) return true;
-    const avail = MENUS[menuKey].availability;
-    if (!avail) return true;
+          const [sh, sm] = avail.start.split(":").map(Number);
+          const [eh, em] = avail.end.split(":").map(Number);
+          const nowMins = now.getHours() * 60 + now.getMinutes();
+          const startMins = sh * 60 + sm;
+          const endMins = eh * 60 + em;
+          return nowMins >= startMins && nowMins < endMins;
+        }
 
-    const now = new Date();
-    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const todayDay = days[now.getDay()];
-    if (!avail.days.includes(todayDay)) return false;
+        function menuAvailabilityLabel(menuKey) {
+          const avail = MENUS[menuKey].availability;
+          if (!avail) return "";
+          const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const todayDay = days[new Date().getDay()];
+          if (!avail.days.includes(todayDay)) {
+            const dayList =
+              avail.days.length === 7 ? "Daily" : avail.days.join(", ");
+            return `${dayList} · ${avail.start}–${avail.end}`;
+          }
+          return `${avail.start}–${avail.end}`;
+        }
 
-    const [sh, sm] = avail.start.split(':').map(Number);
-    const [eh, em] = avail.end.split(':').map(Number);
-    const nowMins = now.getHours() * 60 + now.getMinutes();
-    const startMins = sh * 60 + sm;
-    const endMins = eh * 60 + em;
-    return nowMins >= startMins && nowMins < endMins;
-  }
+        // ═══════ MENU RENDERING ═══════
 
-  function menuAvailabilityLabel(menuKey) {
-    const avail = MENUS[menuKey].availability;
-    if (!avail) return '';
-    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const todayDay = days[new Date().getDay()];
-    if (!avail.days.includes(todayDay)) {
-      const dayList = avail.days.length === 7 ? 'Daily' : avail.days.join(', ');
-      return `${dayList} · ${avail.start}–${avail.end}`;
-    }
-    return `${avail.start}–${avail.end}`;
-  }
-
-  // ═══════ MENU RENDERING ═══════
-
-  function renderMenuTabs() {
-    const keys = Object.keys(MENUS);
-    // Auto-select first available menu, or first menu if none available
-    if (!activeMenu || !keys.includes(activeMenu)) {
-      activeMenu = keys.find(k => isMenuAvailable(k)) || keys[0];
-    }
-    menuTabsEl.innerHTML = keys.map(k => {
-      const m = MENUS[k];
-      const available = isMenuAvailable(k);
-      const label = menuAvailabilityLabel(k);
-      const unavailAttr = available ? '' : ' data-unavail="1"';
-      const title = available ? '' : ` title="${label}"`;
-      return `<div class="menu-tab${k===activeMenu?' active':''}${available?'':' unavail'}" data-k="${k}">
+        function renderMenuTabs() {
+          const keys = Object.keys(MENUS);
+          // Auto-select first available menu, or first menu if none available
+          if (!activeMenu || !keys.includes(activeMenu)) {
+            activeMenu = keys.find((k) => isMenuAvailable(k)) || keys[0];
+          }
+          menuTabsEl.innerHTML = keys
+            .map((k) => {
+              const m = MENUS[k];
+              const available = isMenuAvailable(k);
+              const label = menuAvailabilityLabel(k);
+              const unavailAttr = available ? "" : ' data-unavail="1"';
+              const title = available ? "" : ` title="${label}"`;
+              return `<div class="menu-tab${k === activeMenu ? " active" : ""}${available ? "" : " unavail"}" data-k="${k}">
         <span class="ti">${m.icon}</span>${k}
       </div>`;
-    }).join('');
-    menuTabsEl.querySelectorAll('.menu-tab').forEach(t => {
-      t.addEventListener('click', () => {
-        activeMenu = t.dataset.k; activeSection = null; activeSubsection = null;
-        renderMenuTabs(); renderSectionTabs(); renderItems(); updateBC();
-      });
-    });
-  }
+            })
+            .join("");
+          menuTabsEl.querySelectorAll(".menu-tab").forEach((t) => {
+            t.addEventListener("click", () => {
+              activeMenu = t.dataset.k;
+              activeSection = null;
+              activeSubsection = null;
+              renderMenuTabs();
+              renderSectionTabs();
+              renderItems();
+              updateBC();
+            });
+          });
+        }
 
-  function renderSectionTabs() {
-    if (!activeMenu) return;
-    const secs = Object.keys(MENUS[activeMenu].sections);
-    if (!activeSection || !secs.includes(activeSection)) activeSection = secs[0];
-    sectionTabsEl.innerHTML = secs.map(s =>
-      `<div class="section-tab${s===activeSection?' active':''}" data-s="${s}">${s}</div>`
-    ).join('');
-    sectionTabsEl.querySelectorAll('.section-tab').forEach(t => {
-      t.addEventListener('click', () => {
-        activeSection = t.dataset.s;
-        activeSubsection = null;
-        renderSectionTabs(); renderSubsectionTabs(); renderItems(); updateBC();
-      });
-    });
-    renderSubsectionTabs();
-  }
+        function renderSectionTabs() {
+          if (!activeMenu) return;
+          const secs = Object.keys(MENUS[activeMenu].sections);
+          if (!activeSection || !secs.includes(activeSection))
+            activeSection = secs[0];
+          sectionTabsEl.innerHTML = secs
+            .map(
+              (s) =>
+                `<div class="section-tab${s === activeSection ? " active" : ""}" data-s="${s}">${s}</div>`,
+            )
+            .join("");
+          sectionTabsEl.querySelectorAll(".section-tab").forEach((t) => {
+            t.addEventListener("click", () => {
+              activeSection = t.dataset.s;
+              activeSubsection = null;
+              renderSectionTabs();
+              renderSubsectionTabs();
+              renderItems();
+              updateBC();
+            });
+          });
+          renderSubsectionTabs();
+        }
 
-  function renderSubsectionTabs() {
-    if (!activeMenu || !activeSection) { subsectionTabsEl.classList.remove('visible'); return; }
-    const sec = MENUS[activeMenu].sections[activeSection];
-    if (!sec || !sec.subsections) { subsectionTabsEl.classList.remove('visible'); return; }
-    const subs = Object.keys(sec.subsections);
-    if (!activeSubsection || !subs.includes(activeSubsection)) activeSubsection = subs[0];
-    subsectionTabsEl.classList.add('visible');
-    subsectionTabsEl.innerHTML = subs.map(s =>
-      `<div class="section-tab${s===activeSubsection?' active':''}" data-s="${s}">${s}</div>`
-    ).join('');
-    subsectionTabsEl.querySelectorAll('.section-tab').forEach(t => {
-      t.addEventListener('click', () => {
-        activeSubsection = t.dataset.s;
-        renderSubsectionTabs(); renderItems(); updateBC();
-      });
-    });
-  }
+        function renderSubsectionTabs() {
+          if (!activeMenu || !activeSection) {
+            subsectionTabsEl.classList.remove("visible");
+            return;
+          }
+          const sec = MENUS[activeMenu].sections[activeSection];
+          if (!sec || !sec.subsections) {
+            subsectionTabsEl.classList.remove("visible");
+            return;
+          }
+          const subs = Object.keys(sec.subsections);
+          if (!activeSubsection || !subs.includes(activeSubsection))
+            activeSubsection = subs[0];
+          subsectionTabsEl.classList.add("visible");
+          subsectionTabsEl.innerHTML = subs
+            .map(
+              (s) =>
+                `<div class="section-tab${s === activeSubsection ? " active" : ""}" data-s="${s}">${s}</div>`,
+            )
+            .join("");
+          subsectionTabsEl.querySelectorAll(".section-tab").forEach((t) => {
+            t.addEventListener("click", () => {
+              activeSubsection = t.dataset.s;
+              renderSubsectionTabs();
+              renderItems();
+              updateBC();
+            });
+          });
+        }
 
-  function renderItems() {
-    if (!activeMenu || !activeSection) return;
-    const sec = MENUS[activeMenu].sections[activeSection];
-    if (!sec) { itemsGridEl.innerHTML = ''; return; }
-    const items = sec.subsections ? sec.subsections[activeSubsection] : sec;
-    if (!items) { itemsGridEl.innerHTML = ''; return; }
+        function renderItems() {
+          if (!activeMenu || !activeSection) return;
+          const sec = MENUS[activeMenu].sections[activeSection];
+          if (!sec) {
+            itemsGridEl.innerHTML = "";
+            return;
+          }
+          const items = sec.subsections
+            ? sec.subsections[activeSubsection]
+            : sec;
+          if (!items) {
+            itemsGridEl.innerHTML = "";
+            return;
+          }
 
-    itemsGridEl.innerHTML = Object.entries(items).map(([name, data]) => {
-      // Price display
-      const priceHtml = data.price ? `<div class="iprice">£${data.price.toFixed(2)}</div>` : '';
-      
-      // Dietary tags
-      let dietaryHtml = '';
-      if (data.dietary && data.dietary.length > 0) {
-        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA', VGA: 'VGA' };
-        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available', VGA: 'Vegan Available' };
-        dietaryHtml = `<div class="idietary">${data.dietary.map(d => 
-          `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
-        ).join('')}</div>`;
-      }
-      
-      return `<div class="item-card" data-name="${esc(name)}">
+          itemsGridEl.innerHTML = Object.entries(items)
+            .map(([name, data]) => {
+              // Price display
+              const priceHtml = data.price
+                ? `<div class="iprice">£${data.price.toFixed(2)}</div>`
+                : "";
+
+              // Dietary tags
+              let dietaryHtml = "";
+              if (data.dietary && data.dietary.length > 0) {
+                const tagLabels = {
+                  V: "V",
+                  VG: "VG",
+                  GF: "GF",
+                  GFA: "GFA",
+                  VGA: "VGA",
+                };
+                const tagTitles = {
+                  V: "Vegetarian",
+                  VG: "Vegan",
+                  GF: "Gluten-Free",
+                  GFA: "Gluten-Free Available",
+                  VGA: "Vegan Available",
+                };
+                dietaryHtml = `<div class="idietary">${data.dietary
+                  .map(
+                    (d) =>
+                      `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`,
+                  )
+                  .join("")}</div>`;
+              }
+
+              return `<div class="item-card" data-name="${esc(name)}">
         <div class="iname">${name}</div>
         ${priceHtml}
         ${dietaryHtml}
       </div>`;
-    }).join('');
+            })
+            .join("");
 
-    itemsGridEl.querySelectorAll('.item-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const name = card.dataset.name;
-        const data = items[name];
-        handleItemTap(name, data, card);
-      });
-    });
-  }
+          itemsGridEl.querySelectorAll(".item-card").forEach((card) => {
+            card.addEventListener("click", () => {
+              const name = card.dataset.name;
+              const data = items[name];
+              handleItemTap(name, data, card);
+            });
+          });
+        }
 
-  function updateBC() {
-    let h = '';
-    if (activeMenu) h += `<span class="sep">›</span><span class="cur">${activeMenu}</span>`;
-    if (activeSection) h += `<span class="sep">›</span><span class="cur">${activeSection}</span>`;
-    if (activeSubsection) h += `<span class="sep">›</span><span class="cur">${activeSubsection}</span>`;
-    breadcrumbsEl.innerHTML = h;
-  }
+        function updateBC() {
+          let h = "";
+          if (activeMenu)
+            h += `<span class="sep">›</span><span class="cur">${activeMenu}</span>`;
+          if (activeSection)
+            h += `<span class="sep">›</span><span class="cur">${activeSection}</span>`;
+          if (activeSubsection)
+            h += `<span class="sep">›</span><span class="cur">${activeSubsection}</span>`;
+          breadcrumbsEl.innerHTML = h;
+        }
 
-  // ═══════ ITEM TAP ═══════
+        // ═══════ ITEM TAP ═══════
 
-  function handleItemTap(name, data, cardEl) {
-    if (data.scoopBuilder) {
-      openScoopModal(name, data.scoopBuilder);
-    } else if (data.choices && Object.keys(data.choices).length > 0) {
-      openModal(name, data);
-    } else {
-      addToNote(name, {}, '');
-      flashCard(cardEl);
-    }
-  }
+        function handleItemTap(name, data, cardEl) {
+          if (data.scoopBuilder) {
+            openScoopModal(name, data.scoopBuilder);
+          } else if (data.choices && Object.keys(data.choices).length > 0) {
+            openModal(name, data);
+          } else {
+            addToNote(name, {}, "");
+            flashCard(cardEl);
+          }
+        }
 
-  function flashCard(el) {
-    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
-  }
+        function flashCard(el) {
+          el.classList.remove("flash");
+          void el.offsetWidth;
+          el.classList.add("flash");
+        }
 
-  // ── SCOOP BUILDER MODAL ──
+        // ── SCOOP BUILDER MODAL ──
 
-  let scoopBuilderName = '';
-  let scoopBuilderFlavours = [];
-  let scoopCount = 0;
+        let scoopBuilderName = "";
+        let scoopBuilderFlavours = [];
+        let scoopCount = 0;
 
-  function openScoopModal(name, builder) {
-    scoopBuilderName = name;
-    scoopBuilderFlavours = builder.flavours;
-    scoopCount = 0;
-    modalItemName = name;
-    modalTitleEl.textContent = name;
-    modalSubEl.textContent = '';
-    renderScoopModal(builder.maxScoops);
-    modalOverlayEl.classList.add('open');
-  }
+        function openScoopModal(name, builder) {
+          scoopBuilderName = name;
+          scoopBuilderFlavours = builder.flavours;
+          scoopCount = 0;
+          modalItemName = name;
+          modalTitleEl.textContent = name;
+          modalSubEl.textContent = "";
+          renderScoopModal(builder.maxScoops);
+          modalOverlayEl.classList.add("open");
+        }
 
-  function renderScoopModal(maxScoops) {
-    const scoopNums = Array.from({ length: maxScoops }, (_, i) => i + 1);
-    let html = `<div class="choice-group">
+        function renderScoopModal(maxScoops) {
+          const scoopNums = Array.from({ length: maxScoops }, (_, i) => i + 1);
+          let html = `<div class="choice-group">
       <div class="choice-group-label">Scoops</div>
       <div class="choice-options">
-        ${scoopNums.map(n => `<div class="choice-pill scoop-count-pill${scoopCount === n ? ' selected' : ''}" data-scoops="${n}">${n} Scoop${n > 1 ? 's' : ''}</div>`).join('')}
+        ${scoopNums.map((n) => `<div class="choice-pill scoop-count-pill${scoopCount === n ? " selected" : ""}" data-scoops="${n}">${n} Scoop${n > 1 ? "s" : ""}</div>`).join("")}
       </div>
     </div>
     <div id="scoopFlavourPickers"></div>
@@ -1078,169 +1902,200 @@ if ('serviceWorker' in navigator) {
       <label>Add a note (optional)</label>
       <input class="modal-note-input" id="modalNoteInput" type="text" placeholder="e.g. in a cone, extra sauce…">
     </div>`;
-    modalBodyEl.innerHTML = html;
-    modalBodyEl.querySelectorAll('.scoop-count-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        scoopCount = parseInt(pill.dataset.scoops);
-        modalBodyEl.querySelectorAll('.scoop-count-pill').forEach(p => p.classList.remove('selected'));
-        pill.classList.add('selected');
-        renderFlavourPickers();
-      });
-    });
-  }
+          modalBodyEl.innerHTML = html;
+          modalBodyEl.querySelectorAll(".scoop-count-pill").forEach((pill) => {
+            pill.addEventListener("click", () => {
+              scoopCount = parseInt(pill.dataset.scoops);
+              modalBodyEl
+                .querySelectorAll(".scoop-count-pill")
+                .forEach((p) => p.classList.remove("selected"));
+              pill.classList.add("selected");
+              renderFlavourPickers();
+            });
+          });
+        }
 
-  function renderFlavourPickers() {
-    const container = document.getElementById('scoopFlavourPickers');
-    if (!container) return;
-    let html = '';
-    for (let i = 1; i <= scoopCount; i++) {
-      html += `<div class="choice-group">
+        function renderFlavourPickers() {
+          const container = document.getElementById("scoopFlavourPickers");
+          if (!container) return;
+          let html = "";
+          for (let i = 1; i <= scoopCount; i++) {
+            html += `<div class="choice-group">
         <div class="choice-group-label">Scoop ${i}</div>
         <div class="choice-options">
-          ${scoopBuilderFlavours.map(f => `<div class="choice-pill scoop-flavour-pill" data-scoop="${i}" data-val="${esc(f)}">${f}</div>`).join('')}
+          ${scoopBuilderFlavours.map((f) => `<div class="choice-pill scoop-flavour-pill" data-scoop="${i}" data-val="${esc(f)}">${f}</div>`).join("")}
         </div>
       </div>`;
-    }
-    container.innerHTML = html;
-    container.querySelectorAll('.scoop-flavour-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        const s = pill.dataset.scoop;
-        container.querySelectorAll(`.scoop-flavour-pill[data-scoop="${s}"]`).forEach(p => p.classList.remove('selected'));
-        pill.classList.add('selected');
-      });
-    });
-  }
+          }
+          container.innerHTML = html;
+          container.querySelectorAll(".scoop-flavour-pill").forEach((pill) => {
+            pill.addEventListener("click", () => {
+              const s = pill.dataset.scoop;
+              container
+                .querySelectorAll(`.scoop-flavour-pill[data-scoop="${s}"]`)
+                .forEach((p) => p.classList.remove("selected"));
+              pill.classList.add("selected");
+            });
+          });
+        }
 
-  // ═══════ CHOICES MODAL ═══════
+        // ═══════ CHOICES MODAL ═══════
 
-  function openModal(name, data) {
-    modalItemName = name;
-    modalItemData = data;
-    modalSelections = {};
-    modalTitleEl.textContent = name;
-    modalSubEl.textContent = '';
+        function openModal(name, data) {
+          modalItemName = name;
+          modalItemData = data;
+          modalSelections = {};
+          modalTitleEl.textContent = name;
+          modalSubEl.textContent = "";
 
-    let html = '';
-    if (data.choices) {
-      for (const [group, options] of Object.entries(data.choices)) {
-        html += `<div class="choice-group">
+          let html = "";
+          if (data.choices) {
+            for (const [group, options] of Object.entries(data.choices)) {
+              html += `<div class="choice-group">
           <div class="choice-group-label">${group}</div>
           <div class="choice-options">
-            ${options.map(o => `<div class="choice-pill" data-group="${esc(group)}" data-val="${esc(o)}">${o}</div>`).join('')}
+            ${options.map((o) => `<div class="choice-pill" data-group="${esc(group)}" data-val="${esc(o)}">${o}</div>`).join("")}
           </div>
         </div>`;
-      }
-    }
+            }
+          }
 
-    html += `<div class="modal-note-section">
+          html += `<div class="modal-note-section">
       <label>Add a note (optional)</label>
       <input class="modal-note-input" id="modalNoteInput" type="text" placeholder="e.g. no onions, extra sauce…">
     </div>`;
 
-    modalBodyEl.innerHTML = html;
+          modalBodyEl.innerHTML = html;
 
-    modalBodyEl.querySelectorAll('.choice-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        const g = pill.dataset.group;
-        modalBodyEl.querySelectorAll(`.choice-pill[data-group="${CSS.escape(g)}"]`).forEach(p => p.classList.remove('selected'));
-        pill.classList.add('selected');
-        modalSelections[g] = pill.dataset.val;
-      });
-    });
+          modalBodyEl.querySelectorAll(".choice-pill").forEach((pill) => {
+            pill.addEventListener("click", () => {
+              const g = pill.dataset.group;
+              modalBodyEl
+                .querySelectorAll(`.choice-pill[data-group="${CSS.escape(g)}"]`)
+                .forEach((p) => p.classList.remove("selected"));
+              pill.classList.add("selected");
+              modalSelections[g] = pill.dataset.val;
+            });
+          });
 
-    modalOverlayEl.classList.add('open');
-  }
+          modalOverlayEl.classList.add("open");
+        }
 
-  function closeModal() { modalOverlayEl.classList.remove('open'); scoopCount = 0; }
+        function closeModal() {
+          modalOverlayEl.classList.remove("open");
+          scoopCount = 0;
+        }
 
-  $('modalCancel').addEventListener('click', closeModal);
-  modalOverlayEl.addEventListener('click', e => { if (e.target === modalOverlayEl) closeModal(); });
+        $("modalCancel").addEventListener("click", closeModal);
+        modalOverlayEl.addEventListener("click", (e) => {
+          if (e.target === modalOverlayEl) closeModal();
+        });
 
-  $('modalAdd').addEventListener('click', () => {
-    const userNote = ($('modalNoteInput')?.value || '').trim();
-    if (scoopCount > 0 && modalBodyEl.querySelector('.scoop-count-pill')) {
-      const flavours = [];
-      for (let i = 1; i <= scoopCount; i++) {
-        const sel = modalBodyEl.querySelector(`.scoop-flavour-pill[data-scoop="${i}"].selected`);
-        flavours.push(sel ? sel.dataset.val : '?');
-      }
-      const choiceStr = `${scoopCount} Scoop${scoopCount > 1 ? 's' : ''}: ${flavours.join(', ')}`;
-      addToNote(scoopBuilderName, { Scoops: choiceStr }, userNote);
-      scoopCount = 0;
-    } else {
-      addToNote(modalItemName, { ...modalSelections }, userNote);
-    }
-    closeModal();
-    const cards = itemsGridEl.querySelectorAll('.item-card');
-    cards.forEach(c => { if (c.dataset.name === modalItemName) flashCard(c); });
-  });
+        $("modalAdd").addEventListener("click", () => {
+          const userNote = ($("modalNoteInput")?.value || "").trim();
+          if (
+            scoopCount > 0 &&
+            modalBodyEl.querySelector(".scoop-count-pill")
+          ) {
+            const flavours = [];
+            for (let i = 1; i <= scoopCount; i++) {
+              const sel = modalBodyEl.querySelector(
+                `.scoop-flavour-pill[data-scoop="${i}"].selected`,
+              );
+              flavours.push(sel ? sel.dataset.val : "?");
+            }
+            const choiceStr = `${scoopCount} Scoop${scoopCount > 1 ? "s" : ""}: ${flavours.join(", ")}`;
+            addToNote(scoopBuilderName, { Scoops: choiceStr }, userNote);
+            scoopCount = 0;
+          } else {
+            addToNote(modalItemName, { ...modalSelections }, userNote);
+          }
+          closeModal();
+          const cards = itemsGridEl.querySelectorAll(".item-card");
+          cards.forEach((c) => {
+            if (c.dataset.name === modalItemName) flashCard(c);
+          });
+        });
 
-  // ═══════ NOTE MANAGEMENT ═══════
+        // ═══════ NOTE MANAGEMENT ═══════
 
-  function addToNote(name, choices, userNote) {
-    note.push({ id: ++noteId, name, qty: 1, choices: choices || {}, userNote: userNote || '' });
-    renderNote();
-    showToast(name);
-  }
+        function addToNote(name, choices, userNote) {
+          note.push({
+            id: ++noteId,
+            name,
+            qty: 1,
+            choices: choices || {},
+            userNote: userNote || "",
+          });
+          renderNote();
+          showToast(name);
+        }
 
-  function showToast(name) {
-    const rack = document.getElementById('toastRack');
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.innerHTML = `Added <span class="toast-name">${esc(name)}</span>`;
-    rack.appendChild(el);
-    setTimeout(() => el.remove(), 2100);
-  }
+        function showToast(name) {
+          const rack = document.getElementById("toastRack");
+          const el = document.createElement("div");
+          el.className = "toast";
+          el.innerHTML = `Added <span class="toast-name">${esc(name)}</span>`;
+          rack.appendChild(el);
+          setTimeout(() => el.remove(), 2100);
+        }
 
-  function removeItem(id) {
-    note = note.filter(n => n.id !== id);
-    renderNote();
-  }
+        function removeItem(id) {
+          note = note.filter((n) => n.id !== id);
+          renderNote();
+        }
 
-  function startEditNote(id) {
-    editingNoteId = id;
-    renderNote();
-    const inp = document.querySelector(`.inline-note-edit input[data-id="${id}"]`);
-    if (inp) inp.focus();
-  }
+        function startEditNote(id) {
+          editingNoteId = id;
+          renderNote();
+          const inp = document.querySelector(
+            `.inline-note-edit input[data-id="${id}"]`,
+          );
+          if (inp) inp.focus();
+        }
 
-  function saveEditNote(id) {
-    const inp = document.querySelector(`.inline-note-edit input[data-id="${id}"]`);
-    const item = note.find(n => n.id === id);
-    if (item && inp) item.userNote = inp.value.trim();
-    editingNoteId = null;
-    renderNote();
-  }
+        function saveEditNote(id) {
+          const inp = document.querySelector(
+            `.inline-note-edit input[data-id="${id}"]`,
+          );
+          const item = note.find((n) => n.id === id);
+          if (item && inp) item.userNote = inp.value.trim();
+          editingNoteId = null;
+          renderNote();
+        }
 
-  function renderNote() {
-    const total = note.length;
-    noteCountEl.textContent = total;
-    noteBadgeEl.textContent = total > 0 ? total : '';
+        function renderNote() {
+          const total = note.length;
+          noteCountEl.textContent = total;
+          noteBadgeEl.textContent = total > 0 ? total : "";
 
-    if (note.length === 0) {
-      noteListEl.innerHTML = `<div class="note-empty"><div class="note-empty-icon">📝</div>Tap items to add them here</div>`;
-      return;
-    }
+          if (note.length === 0) {
+            noteListEl.innerHTML = `<div class="note-empty"><div class="note-empty-icon">📝</div>Tap items to add them here</div>`;
+            return;
+          }
 
-    noteListEl.innerHTML = note.map(n => {
-      const choiceStr = Object.values(n.choices).filter(Boolean).join(' · ');
-      const isEditing = editingNoteId === n.id;
+          noteListEl.innerHTML = note
+            .map((n) => {
+              const choiceStr = Object.values(n.choices)
+                .filter(Boolean)
+                .join(" · ");
+              const isEditing = editingNoteId === n.id;
 
-      let noteArea = '';
-      if (isEditing) {
-        noteArea = `<div class="inline-note-edit">
+              let noteArea = "";
+              if (isEditing) {
+                noteArea = `<div class="inline-note-edit">
           <input data-id="${n.id}" type="text" value="${esc(n.userNote)}" placeholder="Add note…">
           <button onclick="window._saveNote(${n.id})">Save</button>
         </div>`;
-      } else if (n.userNote) {
-        noteArea = `<div class="note-item-usernote">📎 ${n.userNote}</div>`;
-      }
+              } else if (n.userNote) {
+                noteArea = `<div class="note-item-usernote">📎 ${n.userNote}</div>`;
+              }
 
-      return `<div class="note-item">
+              return `<div class="note-item">
         <div class="note-item-row">
           <div class="note-item-info">
             <div class="note-item-name">${n.name}</div>
-            ${choiceStr ? `<div class="note-item-choices">${choiceStr}</div>` : ''}
+            ${choiceStr ? `<div class="note-item-choices">${choiceStr}</div>` : ""}
           </div>
           <div class="note-item-actions">
             <button class="note-mini-btn edit" onclick="window._editNote(${n.id})" title="Add/edit note">📎</button>
@@ -1249,334 +2104,467 @@ if ('serviceWorker' in navigator) {
         </div>
         ${noteArea}
       </div>`;
-    }).join('');
+            })
+            .join("");
 
-    document.querySelectorAll('.inline-note-edit input').forEach(inp => {
-      inp.addEventListener('keydown', e => {
-        if (e.key === 'Enter') window._saveNote(parseInt(inp.dataset.id));
-      });
-    });
-  }
-
-  window._rm = removeItem;
-  window._editNote = startEditNote;
-  window._saveNote = saveEditNote;
-
-  // ═══════ CLEAR / RESET ═══════
-
-  function showConfirm() { if (note.length === 0) return; confirmOverlayEl.classList.add('open'); }
-  function hideConfirm() { confirmOverlayEl.classList.remove('open'); }
-  function clearNote() { note = []; noteId = 0; tableInputEl.value = ''; editingNoteId = null; renderNote(); hideConfirm(); }
-
-  $('resetBtn').addEventListener('click', showConfirm);
-  $('clearBtn').addEventListener('click', showConfirm);
-  $('confirmCancel').addEventListener('click', hideConfirm);
-  $('confirmYes').addEventListener('click', clearNote);
-  confirmOverlayEl.addEventListener('click', e => { if (e.target === confirmOverlayEl) hideConfirm(); });
-
-  // ═══════ ORDER SHEET ═══════
-
-  function openSheet() {
-    orderSheetOverlayEl.classList.add('open');
-  }
-  function closeSheet() {
-    orderSheetOverlayEl.classList.remove('open');
-  }
-
-  orderFabEl.addEventListener('click', openSheet);
-  $('backToMenuBtn').addEventListener('click', closeSheet);
-  orderSheetOverlayEl.addEventListener('click', e => { if (e.target === orderSheetOverlayEl) closeSheet(); });
-
-  // ═══════ MISC ITEM MODAL ═══════
-
-  const miscModalOverlayEl = $('miscModalOverlay');
-  const miscItemNameEl = $('miscItemName');
-  const miscItemNoteEl = $('miscItemNote');
-
-  function openMiscModal() {
-    miscItemNameEl.value = '';
-    miscItemNoteEl.value = '';
-    miscModalOverlayEl.classList.add('open');
-    setTimeout(() => miscItemNameEl.focus(), 100);
-  }
-
-  function closeMiscModal() {
-    miscModalOverlayEl.classList.remove('open');
-  }
-
-  function addMiscItem() {
-    const name = miscItemNameEl.value.trim();
-    if (!name) {
-      miscItemNameEl.focus();
-      return;
-    }
-    const userNote = miscItemNoteEl.value.trim();
-    addToNote(`✨ ${name}`, { Type: 'Misc. Item' }, userNote);
-    closeMiscModal();
-  }
-
-  $('miscItemBtn').addEventListener('click', openMiscModal);
-  $('miscCancel').addEventListener('click', closeMiscModal);
-  $('miscAdd').addEventListener('click', addMiscItem);
-  miscModalOverlayEl.addEventListener('click', e => { if (e.target === miscModalOverlayEl) closeMiscModal(); });
-  
-  // Allow Enter to submit in misc modal
-  miscItemNameEl.addEventListener('keydown', e => { if (e.key === 'Enter') addMiscItem(); });
-  miscItemNoteEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addMiscItem(); } });
-
-  // ═══════ SEARCH ═══════
-
-  let searchIndex = []; // Will hold all searchable items
-
-  function buildSearchIndex() {
-    searchIndex = [];
-    for (const [menuKey, menu] of Object.entries(MENUS)) {
-      for (const [sectionKey, section] of Object.entries(menu.sections)) {
-        if (section.subsections) {
-          for (const [subKey, items] of Object.entries(section.subsections)) {
-            for (const [itemName, itemData] of Object.entries(items)) {
-              searchIndex.push({
-                name: itemName,
-                data: itemData,
-                menu: menuKey,
-                section: sectionKey,
-                subsection: subKey,
-                path: `${menuKey} › ${sectionKey} › ${subKey}`
+          document
+            .querySelectorAll(".inline-note-edit input")
+            .forEach((inp) => {
+              inp.addEventListener("keydown", (e) => {
+                if (e.key === "Enter")
+                  window._saveNote(parseInt(inp.dataset.id));
               });
+            });
+        }
+
+        window._rm = removeItem;
+        window._editNote = startEditNote;
+        window._saveNote = saveEditNote;
+
+        // ═══════ CLEAR / RESET ═══════
+
+        function showConfirm() {
+          if (note.length === 0) return;
+          confirmOverlayEl.classList.add("open");
+        }
+        function hideConfirm() {
+          confirmOverlayEl.classList.remove("open");
+        }
+        function clearNote() {
+          note = [];
+          noteId = 0;
+          tableInputEl.value = "";
+          editingNoteId = null;
+          renderNote();
+          hideConfirm();
+        }
+
+        $("resetBtn").addEventListener("click", showConfirm);
+        $("clearBtn").addEventListener("click", showConfirm);
+        $("confirmCancel").addEventListener("click", hideConfirm);
+        $("confirmYes").addEventListener("click", clearNote);
+        confirmOverlayEl.addEventListener("click", (e) => {
+          if (e.target === confirmOverlayEl) hideConfirm();
+        });
+
+        // ═══════ ORDER SHEET ═══════
+
+        function openSheet() {
+          orderSheetOverlayEl.classList.add("open");
+        }
+        function closeSheet() {
+          orderSheetOverlayEl.classList.remove("open");
+        }
+
+        orderFabEl.addEventListener("click", openSheet);
+        $("backToMenuBtn").addEventListener("click", closeSheet);
+        orderSheetOverlayEl.addEventListener("click", (e) => {
+          if (e.target === orderSheetOverlayEl) closeSheet();
+        });
+
+        // ═══════ MISC ITEM MODAL ═══════
+
+        const miscModalOverlayEl = $("miscModalOverlay");
+        const miscItemNameEl = $("miscItemName");
+        const miscItemNoteEl = $("miscItemNote");
+
+        function openMiscModal() {
+          miscItemNameEl.value = "";
+          miscItemNoteEl.value = "";
+          miscModalOverlayEl.classList.add("open");
+          setTimeout(() => miscItemNameEl.focus(), 100);
+        }
+
+        function closeMiscModal() {
+          miscModalOverlayEl.classList.remove("open");
+        }
+
+        function addMiscItem() {
+          const name = miscItemNameEl.value.trim();
+          if (!name) {
+            miscItemNameEl.focus();
+            return;
+          }
+          const userNote = miscItemNoteEl.value.trim();
+          addToNote(`✨ ${name}`, { Type: "Misc. Item" }, userNote);
+          closeMiscModal();
+        }
+
+        $("miscItemBtn").addEventListener("click", openMiscModal);
+        $("miscCancel").addEventListener("click", closeMiscModal);
+        $("miscAdd").addEventListener("click", addMiscItem);
+        miscModalOverlayEl.addEventListener("click", (e) => {
+          if (e.target === miscModalOverlayEl) closeMiscModal();
+        });
+
+        // Allow Enter to submit in misc modal
+        miscItemNameEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") addMiscItem();
+        });
+        miscItemNoteEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            addMiscItem();
+          }
+        });
+
+        // ═══════ SEARCH ═══════
+
+        let searchIndex = []; // Will hold all searchable items
+
+        function buildSearchIndex() {
+          searchIndex = [];
+          for (const [menuKey, menu] of Object.entries(MENUS)) {
+            for (const [sectionKey, section] of Object.entries(menu.sections)) {
+              if (section.subsections) {
+                for (const [subKey, items] of Object.entries(
+                  section.subsections,
+                )) {
+                  for (const [itemName, itemData] of Object.entries(items)) {
+                    searchIndex.push({
+                      name: itemName,
+                      data: itemData,
+                      menu: menuKey,
+                      section: sectionKey,
+                      subsection: subKey,
+                      path: `${menuKey} › ${sectionKey} › ${subKey}`,
+                    });
+                  }
+                }
+              } else {
+                for (const [itemName, itemData] of Object.entries(section)) {
+                  searchIndex.push({
+                    name: itemName,
+                    data: itemData,
+                    menu: menuKey,
+                    section: sectionKey,
+                    subsection: null,
+                    path: `${menuKey} › ${sectionKey}`,
+                  });
+                }
+              }
             }
           }
-        } else {
-          for (const [itemName, itemData] of Object.entries(section)) {
-            searchIndex.push({
-              name: itemName,
-              data: itemData,
-              menu: menuKey,
-              section: sectionKey,
-              subsection: null,
-              path: `${menuKey} › ${sectionKey}`
-            });
-          }
         }
-      }
-    }
-  }
 
-  function performSearch(query) {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase().trim();
-    const words = q.split(/\s+/);
-    
-    return searchIndex.filter(item => {
-      const name = item.name.toLowerCase();
-      const path = item.path.toLowerCase();
-      // Match all words (AND search)
-      return words.every(word => name.includes(word) || path.includes(word));
-    }).sort((a, b) => {
-      // Prioritize items that start with the query
-      const aStarts = a.name.toLowerCase().startsWith(q);
-      const bStarts = b.name.toLowerCase().startsWith(q);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return a.name.localeCompare(b.name);
-    });
-  }
+        function performSearch(query) {
+          if (!query.trim()) return [];
+          const q = query.toLowerCase().trim();
+          const words = q.split(/\s+/);
 
-  function renderSearchResults(results, query) {
-    if (!query.trim()) {
-      searchResultsEl.classList.remove('active');
-      itemsGridEl.style.display = '';
-      menuTabsEl.style.display = '';
-      sectionTabsEl.style.display = '';
-      subsectionTabsEl.style.display = '';
-      return;
-    }
+          return searchIndex
+            .filter((item) => {
+              const name = item.name.toLowerCase();
+              const path = item.path.toLowerCase();
+              // Match all words (AND search)
+              return words.every(
+                (word) => name.includes(word) || path.includes(word),
+              );
+            })
+            .sort((a, b) => {
+              // Prioritize items that start with the query
+              const aStarts = a.name.toLowerCase().startsWith(q);
+              const bStarts = b.name.toLowerCase().startsWith(q);
+              if (aStarts && !bStarts) return -1;
+              if (!aStarts && bStarts) return 1;
+              return a.name.localeCompare(b.name);
+            });
+        }
 
-    menuTabsEl.style.display = 'none';
-    sectionTabsEl.style.display = 'none';
-    subsectionTabsEl.style.display = 'none';
-    itemsGridEl.style.display = 'none';
-    searchResultsEl.classList.add('active');
+        function renderSearchResults(results, query) {
+          if (!query.trim()) {
+            searchResultsEl.classList.remove("active");
+            itemsGridEl.style.display = "";
+            menuTabsEl.style.display = "";
+            sectionTabsEl.style.display = "";
+            subsectionTabsEl.style.display = "";
+            return;
+          }
 
-    if (results.length === 0) {
-      searchResultsEl.innerHTML = `
+          menuTabsEl.style.display = "none";
+          sectionTabsEl.style.display = "none";
+          subsectionTabsEl.style.display = "none";
+          itemsGridEl.style.display = "none";
+          searchResultsEl.classList.add("active");
+
+          if (results.length === 0) {
+            searchResultsEl.innerHTML = `
         <div class="search-no-results">
           <div class="nricon">🔍</div>
           <p>No items found for "${esc(query)}"</p>
         </div>`;
-      return;
-    }
+            return;
+          }
 
-    const resultsHtml = results.map(item => {
-      const priceHtml = item.data.price ? `<div class="iprice">£${item.data.price.toFixed(2)}</div>` : '';
-      
-      let dietaryHtml = '';
-      if (item.data.dietary && item.data.dietary.length > 0) {
-        const tagLabels = { V: 'V', VG: 'VG', GF: 'GF', GFA: 'GFA', VGA: 'VGA' };
-        const tagTitles = { V: 'Vegetarian', VG: 'Vegan', GF: 'Gluten-Free', GFA: 'Gluten-Free Available', VGA: 'Vegan Available' };
-        dietaryHtml = `<div class="idietary">${item.data.dietary.map(d => 
-          `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
-        ).join('')}</div>`;
-      }
+          const resultsHtml = results
+            .map((item) => {
+              const priceHtml = item.data.price
+                ? `<div class="iprice">£${item.data.price.toFixed(2)}</div>`
+                : "";
 
-      return `<div class="search-item-card" data-name="${esc(item.name)}" data-menu="${esc(item.menu)}" data-section="${esc(item.section)}" data-sub="${esc(item.subsection || '')}">
+              let dietaryHtml = "";
+              if (item.data.dietary && item.data.dietary.length > 0) {
+                const tagLabels = {
+                  V: "V",
+                  VG: "VG",
+                  GF: "GF",
+                  GFA: "GFA",
+                  VGA: "VGA",
+                };
+                const tagTitles = {
+                  V: "Vegetarian",
+                  VG: "Vegan",
+                  GF: "Gluten-Free",
+                  GFA: "Gluten-Free Available",
+                  VGA: "Vegan Available",
+                };
+                dietaryHtml = `<div class="idietary">${item.data.dietary
+                  .map(
+                    (d) =>
+                      `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`,
+                  )
+                  .join("")}</div>`;
+              }
+
+              return `<div class="search-item-card" data-name="${esc(item.name)}" data-menu="${esc(item.menu)}" data-section="${esc(item.section)}" data-sub="${esc(item.subsection || "")}">
         <div class="iname">${highlightMatch(item.name, query)}</div>
         ${priceHtml}
-        <div class="imeta"><span class="loc">${item.menu}</span> ${item.section}${item.subsection ? ' › ' + item.subsection : ''}</div>
+        <div class="imeta"><span class="loc">${item.menu}</span> ${item.section}${item.subsection ? " › " + item.subsection : ""}</div>
         ${dietaryHtml}
       </div>`;
-    }).join('');
+            })
+            .join("");
 
-    searchResultsEl.innerHTML = `
+          searchResultsEl.innerHTML = `
       <div class="search-results-header">
         <div class="search-results-title">Search Results</div>
-        <div class="search-results-count">${results.length} item${results.length !== 1 ? 's' : ''}</div>
+        <div class="search-results-count">${results.length} item${results.length !== 1 ? "s" : ""}</div>
       </div>
       <div class="search-results-grid">${resultsHtml}</div>`;
 
-    // Add click handlers
-    searchResultsEl.querySelectorAll('.search-item-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const name = card.dataset.name;
-        const menuKey = card.dataset.menu;
-        const sectionKey = card.dataset.section;
-        const subKey = card.dataset.sub || null;
+          // Add click handlers
+          searchResultsEl
+            .querySelectorAll(".search-item-card")
+            .forEach((card) => {
+              card.addEventListener("click", () => {
+                const name = card.dataset.name;
+                const menuKey = card.dataset.menu;
+                const sectionKey = card.dataset.section;
+                const subKey = card.dataset.sub || null;
 
-        // Find the item data
-        const item = searchIndex.find(i => 
-          i.name === name && i.menu === menuKey && i.section === sectionKey && i.subsection === subKey
-        );
+                // Find the item data
+                const item = searchIndex.find(
+                  (i) =>
+                    i.name === name &&
+                    i.menu === menuKey &&
+                    i.section === sectionKey &&
+                    i.subsection === subKey,
+                );
 
-        if (item) {
-          handleItemTap(item.name, item.data, card);
-          flashCard(card);
+                if (item) {
+                  handleItemTap(item.name, item.data, card);
+                  flashCard(card);
+                }
+              });
+            });
         }
-      });
-    });
-  }
 
-  function highlightMatch(text, query) {
-    if (!query.trim()) return esc(text);
-    const escaped = esc(text);
-    const words = query.toLowerCase().trim().split(/\s+/);
-    let result = escaped;
-    words.forEach(word => {
-      const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-      result = result.replace(regex, '<mark>$1</mark>');
-    });
-    return result;
-  }
+        function highlightMatch(text, query) {
+          if (!query.trim()) return esc(text);
+          const escaped = esc(text);
+          const words = query.toLowerCase().trim().split(/\s+/);
+          let result = escaped;
+          words.forEach((word) => {
+            const regex = new RegExp(
+              `(${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+              "gi",
+            );
+            result = result.replace(regex, "<mark>$1</mark>");
+          });
+          return result;
+        }
 
-  function clearSearch() {
-    searchInputEl.value = '';
-    searchContainerEl.classList.remove('has-query');
-    renderSearchResults([], '');
-  }
+        function clearSearch() {
+          searchInputEl.value = "";
+          searchContainerEl.classList.remove("has-query");
+          renderSearchResults([], "");
+        }
 
-  // Search event listeners
-  searchInputEl.addEventListener('input', (e) => {
-    const query = e.target.value;
-    searchContainerEl.classList.toggle('has-query', query.length > 0);
-    const results = performSearch(query);
-    renderSearchResults(results, query);
-  });
+        // Search event listeners
+        searchInputEl.addEventListener("input", (e) => {
+          const query = e.target.value;
+          searchContainerEl.classList.toggle("has-query", query.length > 0);
+          const results = performSearch(query);
+          renderSearchResults(results, query);
+        });
 
-  searchInputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      clearSearch();
-      searchInputEl.blur();
-    }
-  });
+        searchInputEl.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            clearSearch();
+            searchInputEl.blur();
+          }
+        });
 
-  searchClearEl.addEventListener('click', clearSearch);
+        searchClearEl.addEventListener("click", clearSearch);
 
-  // Build search index on load
-  buildSearchIndex();
+        // Build search index on load
+        buildSearchIndex();
 
-  // ═══════ HELPERS ═══════
+        // ═══════ HELPERS ═══════
 
-  function esc(s) { return (s||'').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+        function esc(s) {
+          return (s || "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+        }
 
-  // ═══════ SHARED NOTE (JSONbin) ═══════
+        // ═══════ SHARED NOTE (Firestore) ═══════
 
-  const JSONBIN_KEY = '$2a$10$OGWyTmSHyhZnnD4ZBLhNLuJYrgR35LRoKb00dRYxOXAPkAXJS5rWK';
-  const BIN_ID = '69ce451e856a682189f1a3a7';
+        // ⚠️ SETUP REQUIRED - Replace with your Firebase Project ID:
+        // 1. Go to https://console.firebase.google.com
+        // 2. Create a new project (or use existing)
+        // 3. Go to Firestore Database → Create Database → Start in TEST MODE
+        // 4. Copy your Project ID and paste below
+        const FIREBASE_PROJECT_ID = "venues-notes";
+        // Example: 'venneys-orders'
 
-  const sharedNoteOverlayEl = $('sharedNoteOverlay');
-  const cheesecakeNoteEl = $('cheesecakeNote');
-  const pavlovaNoteEl = $('pavlovaNote');
-  const specialsNoteEl = $('specialsNote');
-  const sharedNoteSyncEl = $('sharedNoteSync');
+        const FIRESTORE_URL = `https://firestore.googleapis.com/v1/projects/${"venues-notes"}/databases/(default)/documents`;
 
-  function updateSyncStatus(status) {
-    sharedNoteSyncEl.className = 'shared-note-sync ' + status;
-    $('syncText').textContent = status === 'synced' ? 'Synced' : status === 'syncing' ? 'Syncing...' : 'Error';
-  }
+        const sharedNoteOverlayEl = $("sharedNoteOverlay");
+        const soupNoteEl = $("soupNote");
+        const cheesecakeNoteEl = $("cheesecakeNote");
+        const pavlovaNoteEl = $("pavlovaNote");
+        const bakedAlaskaNoteEl = $("bakedAlaskaNote");
+        const cremeBruleeNoteEl = $("cremeBruleeNote");
+        const otherSpecialsNoteEl = $("otherSpecialsNote");
+        const sharedNoteSyncEl = $("sharedNoteSync");
 
-  async function loadSharedNote() {
-    try {
-      updateSyncStatus('syncing');
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { 'X-Master-Key': JSONBIN_KEY }
-      });
-      if (!res.ok) throw new Error('Failed to load');
-      const data = await res.json();
-      cheesecakeNoteEl.value = data.record.cheesecake || '';
-      pavlovaNoteEl.value = data.record.pavlova || '';
-      specialsNoteEl.value = data.record.specials || '';
-      updateSyncStatus('synced');
-    } catch (e) {
-      console.error('Load error:', e);
-      updateSyncStatus('error');
-    }
-  }
+        // Local cache to minimize reads
+        let cachedSpecials = null;
 
-  async function saveSharedNote() {
-    try {
-      updateSyncStatus('syncing');
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': JSONBIN_KEY
-        },
-        body: JSON.stringify({
-          cheesecake: cheesecakeNoteEl.value,
-          pavlova: pavlovaNoteEl.value,
-          specials: specialsNoteEl.value
-        })
-      });
-      if (!res.ok) throw new Error('Failed to save');
-      updateSyncStatus('synced');
-    } catch (e) {
-      console.error('Save error:', e);
-      updateSyncStatus('error');
-    }
-  }
+        function updateSyncStatus(status) {
+          sharedNoteSyncEl.className = "shared-note-sync " + status;
+          $("syncText").textContent =
+            status === "synced"
+              ? "Synced"
+              : status === "syncing"
+                ? "Syncing..."
+                : "Error";
+        }
 
-  function openSharedNote() {
-    sharedNoteOverlayEl.classList.add('open');
-    loadSharedNote();
-  }
+        // Convert Firestore document to plain object
+        function parseFirestoreDoc(doc) {
+          const fields = doc.fields || {};
+          const result = {};
+          for (const [key, val] of Object.entries(fields)) {
+            result[key] = val.stringValue || "";
+          }
+          return result;
+        }
 
-  function closeSharedNote() {
-    sharedNoteOverlayEl.classList.remove('open');
-  }
+        // Convert plain object to Firestore format
+        function toFirestoreDoc(obj) {
+          const fields = {};
+          for (const [key, val] of Object.entries(obj)) {
+            fields[key] = { stringValue: String(val) };
+          }
+          return { fields };
+        }
 
-  $('sharedNoteBtn').addEventListener('click', openSharedNote);
-  $('sharedNoteClose').addEventListener('click', closeSharedNote);
-  $('sharedNoteRefresh').addEventListener('click', loadSharedNote);
-  $('sharedNoteSave').addEventListener('click', async () => {
-    await saveSharedNote();
-    closeSharedNote();
-  });
-  sharedNoteOverlayEl.addEventListener('click', e => {
-    if (e.target === sharedNoteOverlayEl) closeSharedNote();
-  });
+        async function loadSharedNote(forceRefresh = false) {
+          // Use cache if available and not forcing refresh (minimizes reads)
+          if (cachedSpecials && !forceRefresh) {
+            populateFields(cachedSpecials);
+            updateSyncStatus("synced");
+            return;
+          }
 
-  // ═══════ BOOT ═══════
+          try {
+            updateSyncStatus("syncing");
+            const res = await fetch(`${FIRESTORE_URL}/specials/today`);
+            if (res.status === 404) {
+              // Document doesn't exist yet, use empty values
+              cachedSpecials = {};
+              populateFields({});
+              updateSyncStatus("synced");
+              return;
+            }
+            if (!res.ok) throw new Error("Failed to load");
+            const doc = await res.json();
+            const data = parseFirestoreDoc(doc);
+            cachedSpecials = data;
+            populateFields(data);
+            updateSyncStatus("synced");
+          } catch (e) {
+            console.error("Load error:", e);
+            updateSyncStatus("error");
+          }
+        }
 
-  renderMenuTabs(); renderSectionTabs(); renderItems(); updateBC(); renderNote();
-})();
-</script>
-</body>
+        function populateFields(data) {
+          soupNoteEl.value = data.soup || "";
+          cheesecakeNoteEl.value = data.cheesecake || "";
+          pavlovaNoteEl.value = data.pavlova || "";
+          bakedAlaskaNoteEl.value = data.bakedAlaska || "";
+          cremeBruleeNoteEl.value = data.cremeBrulee || "";
+          otherSpecialsNoteEl.value = data.otherSpecials || "";
+        }
+
+        async function saveSharedNote() {
+          try {
+            updateSyncStatus("syncing");
+            const data = {
+              soup: soupNoteEl.value,
+              cheesecake: cheesecakeNoteEl.value,
+              pavlova: pavlovaNoteEl.value,
+              bakedAlaska: bakedAlaskaNoteEl.value,
+              cremeBrulee: cremeBruleeNoteEl.value,
+              otherSpecials: otherSpecialsNoteEl.value,
+              lastUpdated: new Date().toISOString(),
+            };
+            // Single PATCH upserts the document (1 write operation)
+            const res = await fetch(`${FIRESTORE_URL}/specials/today`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(toFirestoreDoc(data)),
+            });
+            if (!res.ok) throw new Error("Failed to save");
+            cachedSpecials = data; // Update cache
+            updateSyncStatus("synced");
+          } catch (e) {
+            console.error("Save error:", e);
+            updateSyncStatus("error");
+          }
+        }
+
+        function openSharedNote() {
+          sharedNoteOverlayEl.classList.add("open");
+          loadSharedNote(); // Uses cache first, minimizing reads
+        }
+
+        function closeSharedNote() {
+          sharedNoteOverlayEl.classList.remove("open");
+        }
+
+        $("sharedNoteBtn").addEventListener("click", openSharedNote);
+        $("sharedNoteClose").addEventListener("click", closeSharedNote);
+        $("sharedNoteRefresh").addEventListener("click", () =>
+          loadSharedNote(true),
+        ); // Force refresh
+        $("sharedNoteSave").addEventListener("click", async () => {
+          await saveSharedNote();
+          closeSharedNote();
+        });
+        sharedNoteOverlayEl.addEventListener("click", (e) => {
+          if (e.target === sharedNoteOverlayEl) closeSharedNote();
+        });
+
+        // ═══════ BOOT ═══════
+
+        renderMenuTabs();
+        renderSectionTabs();
+        renderItems();
+        updateBC();
+        renderNote();
+      })();
+    </script>
+  </body>
 </html>
