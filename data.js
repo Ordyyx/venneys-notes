@@ -1214,7 +1214,7 @@ const MENUS = {
           dietary: ["Special"],
         },
         "Carrot Cake": {
-          price: 7.5,
+          price: 10.0,
           dietary: ["Special"],
         },
         "White Chocolate and Blueberry Blondie": {
