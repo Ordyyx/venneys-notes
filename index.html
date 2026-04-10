@@ -1412,6 +1412,209 @@
       }
 
       /* ═══════════ CONFIRM DIALOG ═══════════ */
+
+      /* ═══════════ MULTI-NOTE TABS ═══════════ */
+      .note-tabs-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 0;
+      }
+      .note-tabs-bar::-webkit-scrollbar {
+        display: none;
+      }
+      .note-tab {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--text-mid);
+        cursor: pointer;
+        transition: all 0.12s var(--ease);
+        max-width: 140px;
+      }
+      .note-tab:hover {
+        border-color: var(--text-dim);
+        color: var(--text);
+      }
+      .note-tab.active {
+        background: var(--gold-soft);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .note-tab-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        text-align: left;
+      }
+      .note-tab-count {
+        background: rgba(255,255,255,0.1);
+        padding: 1px 5px;
+        border-radius: 8px;
+        font-size: 0.68rem;
+        font-weight: 700;
+      }
+      .note-tab.active .note-tab-count {
+        background: var(--gold-mid);
+      }
+      .note-tab-close {
+        font-size: 0.65rem;
+        opacity: 0.5;
+        padding: 2px;
+        margin: -2px;
+        transition: opacity 0.12s;
+      }
+      .note-tab-close:hover {
+        opacity: 1;
+      }
+      .new-note-btn {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: var(--card);
+        border: 1px dashed var(--border);
+        color: var(--text-dim);
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.12s var(--ease);
+      }
+      .new-note-btn:hover {
+        border-color: var(--gold);
+        border-style: solid;
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+
+      /* ═══════════ NEW NOTE MODAL ═══════════ */
+      .new-note-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 360;
+        align-items: center;
+        justify-content: center;
+      }
+      .new-note-overlay.open {
+        display: flex;
+      }
+      .new-note-modal {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 360px;
+        max-width: 92vw;
+        padding: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: modalIn 0.2s ease;
+      }
+      .new-note-modal h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .new-note-modal label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+      .new-note-modal input,
+      .new-note-modal textarea {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.85rem;
+        padding: 10px 12px;
+        outline: none;
+        transition: border-color 0.15s;
+        margin-bottom: 14px;
+      }
+      .new-note-modal input:focus,
+      .new-note-modal textarea:focus {
+        border-color: var(--gold);
+      }
+      .new-note-modal textarea {
+        min-height: 60px;
+        resize: vertical;
+      }
+      .new-note-modal .hint {
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        margin-top: -10px;
+        margin-bottom: 14px;
+        font-style: italic;
+      }
+      .new-note-btns {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .new-note-btns button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid var(--border);
+      }
+      .btn-nn-cancel {
+        background: var(--card);
+        color: var(--text-mid);
+      }
+      .btn-nn-create {
+        background: var(--gold);
+        color: var(--bg);
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .btn-nn-create:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Allergy badge in note header */
+      .note-allergies-badge {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.72rem;
+        color: var(--red);
+        background: var(--red-soft);
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+      }
+      .note-allergies-badge:empty {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -1445,9 +1648,15 @@
     <div class="order-sheet-overlay" id="orderSheetOverlay">
       <div class="order-sheet" id="orderSheet">
         <div class="order-sheet-handle"></div>
+        <!-- Note Tabs -->
+        <div class="note-tabs-bar" id="noteTabsBar">
+          <!-- Populated by JS -->
+        </div>
         <div class="order-sheet-header">
           <div class="order-sheet-title">
-            Current Order <span class="note-count" id="noteCount">0</span>
+            <span id="currentNoteTitle">Current Order</span>
+            <span class="note-count" id="noteCount">0</span>
+            <span class="note-allergies-badge" id="noteAllergiesBadge"></span>
           </div>
           <button class="btn-icon danger" id="resetBtn" title="Clear order">
             ✕
@@ -1460,19 +1669,11 @@
           </div>
         </div>
         <div class="order-sheet-footer">
-          <div class="note-table-input">
-            <label>Table / Name</label>
-            <input
-              type="text"
-              id="tableInput"
-              placeholder="e.g. Table 4, John…"
-            />
-          </div>
           <div class="sheet-footer-btns">
             <button class="btn-back-to-menu" id="backToMenuBtn">
               ← Back to Menu
             </button>
-            <button class="btn-reset" id="clearBtn">Clear Note</button>
+            <button class="btn-reset" id="clearBtn">Clear Items</button>
           </div>
         </div>
       </div>
@@ -1609,6 +1810,29 @@
       </div>
     </div>
 
+    <!-- New Note Modal -->
+    <div class="new-note-overlay" id="newNoteOverlay">
+      <div class="new-note-modal">
+        <h3>📝 New Order Note</h3>
+        <label>Table / Name</label>
+        <input
+          type="text"
+          id="newNoteTable"
+          placeholder="e.g. Table 4, John Smith…"
+        />
+        <label>⚠️ Allergies</label>
+        <textarea
+          id="newNoteAllergies"
+          placeholder="e.g. Nuts, Gluten, Dairy…"
+        ></textarea>
+        <div class="hint">Leave blank if none. This will be shown on the order.</div>
+        <div class="new-note-btns">
+          <button class="btn-nn-cancel" id="newNoteCancel">Cancel</button>
+          <button class="btn-nn-create" id="newNoteCreate">Create Note</button>
+        </div>
+      </div>
+    </div>
+
     <script src="data.js"></script>
     <script>
       // ── Register Service Worker ──
@@ -1628,8 +1852,12 @@
         let activeMenu = null;
         let activeSection = null;
         let activeSubsection = null;
-        let note = [];
-        let noteId = 0;
+        
+        // Multi-note state
+        let notes = []; // Array of note objects: { id, tableName, allergies, items: [], itemId: 0 }
+        let activeNoteId = null;
+        let noteIdCounter = 0;
+        
         let editingNoteId = null;
 
         let modalItemName = "";
@@ -1645,7 +1873,6 @@
         const noteListEl = $("noteList");
         const noteCountEl = $("noteCount");
         const noteBadgeEl = $("noteBadge");
-        const tableInputEl = $("tableInput");
         const confirmOverlayEl = $("confirmOverlay");
         const modalOverlayEl = $("modalOverlay");
         const modalTitleEl = $("modalTitle");
@@ -1657,6 +1884,160 @@
         const searchClearEl = $("searchClear");
         const searchResultsEl = $("searchResults");
         const searchContainerEl = searchInputEl.parentElement;
+        
+        // Multi-note elements
+        const noteTabsBarEl = $("noteTabsBar");
+        const currentNoteTitleEl = $("currentNoteTitle");
+        const noteAllergiesBadgeEl = $("noteAllergiesBadge");
+        const newNoteOverlayEl = $("newNoteOverlay");
+        const newNoteTableEl = $("newNoteTable");
+        const newNoteAllergiesEl = $("newNoteAllergies");
+        
+        // ═══════ MULTI-NOTE HELPERS ═══════
+        
+        function getActiveNote() {
+          return notes.find(n => n.id === activeNoteId) || null;
+        }
+        
+        function createNote(tableName, allergies) {
+          const newNote = {
+            id: ++noteIdCounter,
+            tableName: tableName || `Note ${noteIdCounter}`,
+            allergies: allergies || "",
+            items: [],
+            itemId: 0
+          };
+          notes.push(newNote);
+          activeNoteId = newNote.id;
+          renderNoteTabs();
+          renderNote();
+          updateBadge();
+        }
+        
+        function switchToNote(id) {
+          activeNoteId = id;
+          editingNoteId = null;
+          renderNoteTabs();
+          renderNote();
+          updateNoteHeader();
+        }
+        
+        function deleteNote(id) {
+          const idx = notes.findIndex(n => n.id === id);
+          if (idx === -1) return;
+          notes.splice(idx, 1);
+          
+          // If we deleted the active note, switch to another
+          if (activeNoteId === id) {
+            if (notes.length > 0) {
+              activeNoteId = notes[Math.max(0, idx - 1)].id;
+            } else {
+              activeNoteId = null;
+            }
+          }
+          renderNoteTabs();
+          renderNote();
+          updateBadge();
+          updateNoteHeader();
+        }
+        
+        function renderNoteTabs() {
+          let html = notes.map(n => {
+            const isActive = n.id === activeNoteId;
+            const itemCount = n.items.length;
+            const label = n.tableName || `Note ${n.id}`;
+            return `<div class="note-tab${isActive ? ' active' : ''}" data-id="${n.id}">
+              <span class="note-tab-label">${esc(label)}</span>
+              <span class="note-tab-count">${itemCount}</span>
+              <span class="note-tab-close" data-close="${n.id}">✕</span>
+            </div>`;
+          }).join('');
+          
+          html += `<button class="new-note-btn" id="addNoteBtn" title="New note">+</button>`;
+          noteTabsBarEl.innerHTML = html;
+          
+          // Add event listeners
+          noteTabsBarEl.querySelectorAll('.note-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+              if (e.target.classList.contains('note-tab-close')) {
+                e.stopPropagation();
+                const closeId = parseInt(e.target.dataset.close);
+                if (notes.length === 1) {
+                  // If only one note, just clear it
+                  showConfirm();
+                } else {
+                  deleteNote(closeId);
+                }
+                return;
+              }
+              switchToNote(parseInt(tab.dataset.id));
+            });
+          });
+          
+          const addBtn = $("addNoteBtn");
+          if (addBtn) {
+            addBtn.addEventListener('click', openNewNoteModal);
+          }
+        }
+        
+        function updateNoteHeader() {
+          const note = getActiveNote();
+          if (note) {
+            currentNoteTitleEl.textContent = note.tableName || 'Order';
+            if (note.allergies) {
+              noteAllergiesBadgeEl.innerHTML = `⚠️ ${esc(note.allergies)}`;
+            } else {
+              noteAllergiesBadgeEl.innerHTML = '';
+            }
+          } else {
+            currentNoteTitleEl.textContent = 'No Note';
+            noteAllergiesBadgeEl.innerHTML = '';
+          }
+        }
+        
+        function updateBadge() {
+          const totalItems = notes.reduce((sum, n) => sum + n.items.length, 0);
+          noteBadgeEl.textContent = totalItems > 0 ? totalItems : '';
+        }
+        
+        // ═══════ NEW NOTE MODAL ═══════
+        
+        function openNewNoteModal() {
+          newNoteTableEl.value = '';
+          newNoteAllergiesEl.value = '';
+          newNoteOverlayEl.classList.add('open');
+          setTimeout(() => newNoteTableEl.focus(), 100);
+        }
+        
+        function closeNewNoteModal() {
+          newNoteOverlayEl.classList.remove('open');
+        }
+        
+        function handleCreateNote() {
+          const tableName = newNoteTableEl.value.trim();
+          const allergies = newNoteAllergiesEl.value.trim();
+          createNote(tableName, allergies);
+          closeNewNoteModal();
+          updateNoteHeader();
+        }
+        
+        $("newNoteCancel").addEventListener("click", closeNewNoteModal);
+        $("newNoteCreate").addEventListener("click", handleCreateNote);
+        newNoteOverlayEl.addEventListener("click", (e) => {
+          if (e.target === newNoteOverlayEl) closeNewNoteModal();
+        });
+        newNoteTableEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            newNoteAllergiesEl.focus();
+          }
+        });
+        newNoteAllergiesEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleCreateNote();
+          }
+        });
 
         // ═══════ AVAILABILITY HELPERS ═══════
 
@@ -2020,16 +2401,48 @@
         // ═══════ NOTE MANAGEMENT ═══════
 
         function addToNote(name, choices, userNote) {
-          note.push({
-            id: ++noteId,
+          // If no notes exist, create one first
+          if (notes.length === 0) {
+            openNewNoteModal();
+            // Store pending item to add after note creation
+            window._pendingItem = { name, choices, userNote };
+            return;
+          }
+          
+          const note = getActiveNote();
+          if (!note) return;
+          
+          note.items.push({
+            id: ++note.itemId,
             name,
             qty: 1,
             choices: choices || {},
             userNote: userNote || "",
           });
           renderNote();
+          renderNoteTabs();
+          updateBadge();
           showToast(name);
         }
+        
+        // Override create note to handle pending items
+        const originalHandleCreateNote = handleCreateNote;
+        window._handleCreateNoteWithPending = function() {
+          const tableName = newNoteTableEl.value.trim();
+          const allergies = newNoteAllergiesEl.value.trim();
+          createNote(tableName, allergies);
+          closeNewNoteModal();
+          updateNoteHeader();
+          
+          // Add pending item if exists
+          if (window._pendingItem) {
+            const { name, choices, userNote } = window._pendingItem;
+            window._pendingItem = null;
+            addToNote(name, choices, userNote);
+          }
+        };
+        $("newNoteCreate").removeEventListener("click", handleCreateNote);
+        $("newNoteCreate").addEventListener("click", window._handleCreateNoteWithPending);
 
         function showToast(name) {
           const rack = document.getElementById("toastRack");
@@ -2041,8 +2454,12 @@
         }
 
         function removeItem(id) {
-          note = note.filter((n) => n.id !== id);
+          const note = getActiveNote();
+          if (!note) return;
+          note.items = note.items.filter((n) => n.id !== id);
           renderNote();
+          renderNoteTabs();
+          updateBadge();
         }
 
         function startEditNote(id) {
@@ -2058,23 +2475,30 @@
           const inp = document.querySelector(
             `.inline-note-edit input[data-id="${id}"]`,
           );
-          const item = note.find((n) => n.id === id);
+          const note = getActiveNote();
+          if (!note) return;
+          const item = note.items.find((n) => n.id === id);
           if (item && inp) item.userNote = inp.value.trim();
           editingNoteId = null;
           renderNote();
         }
 
         function renderNote() {
-          const total = note.length;
+          const note = getActiveNote();
+          const items = note ? note.items : [];
+          const total = items.length;
           noteCountEl.textContent = total;
-          noteBadgeEl.textContent = total > 0 ? total : "";
 
-          if (note.length === 0) {
-            noteListEl.innerHTML = `<div class="note-empty"><div class="note-empty-icon">📝</div>Tap items to add them here</div>`;
+          if (items.length === 0) {
+            if (notes.length === 0) {
+              noteListEl.innerHTML = `<div class="note-empty"><div class="note-empty-icon">📝</div>Tap the + button to create a new order note</div>`;
+            } else {
+              noteListEl.innerHTML = `<div class="note-empty"><div class="note-empty-icon">📝</div>Tap items to add them here</div>`;
+            }
             return;
           }
 
-          noteListEl.innerHTML = note
+          noteListEl.innerHTML = items
             .map((n) => {
               const choiceStr = Object.values(n.choices)
                 .filter(Boolean)
@@ -2124,18 +2548,23 @@
         // ═══════ CLEAR / RESET ═══════
 
         function showConfirm() {
-          if (note.length === 0) return;
+          const note = getActiveNote();
+          if (!note || note.items.length === 0) return;
           confirmOverlayEl.classList.add("open");
         }
         function hideConfirm() {
           confirmOverlayEl.classList.remove("open");
         }
         function clearNote() {
-          note = [];
-          noteId = 0;
-          tableInputEl.value = "";
+          const note = getActiveNote();
+          if (note) {
+            note.items = [];
+            note.itemId = 0;
+          }
           editingNoteId = null;
           renderNote();
+          renderNoteTabs();
+          updateBadge();
           hideConfirm();
         }
 
@@ -2563,7 +2992,10 @@
         renderSectionTabs();
         renderItems();
         updateBC();
+        renderNoteTabs();
         renderNote();
+        updateNoteHeader();
+        updateBadge();
       })();
     </script>
   </body>
