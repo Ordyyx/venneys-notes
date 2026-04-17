@@ -563,6 +563,14 @@
         margin-top: 4px;
         flex-wrap: wrap;
       }
+      .ispecial {
+        font-size: 0.75rem;
+        color: var(--gold);
+        font-style: italic;
+        margin-top: 3px;
+        line-height: 1.3;
+        opacity: 0.85;
+      }
       .dietary-tag {
         font-size: 0.6rem;
         font-weight: 700;
@@ -2351,6 +2359,17 @@
           });
         }
 
+        function getSpecialForItem(name) {
+          if (!cachedSpecials) return "";
+          const lower = name.toLowerCase();
+          if (lower.includes("soup")) return cachedSpecials.soup || "";
+          if (lower.includes("cheesecake")) return cachedSpecials.cheesecake || "";
+          if (lower.includes("pavlova")) return cachedSpecials.pavlova || "";
+          if (lower.includes("baked alaska")) return cachedSpecials.bakedAlaska || "";
+          if (lower.includes("br") && (lower.includes("brulee") || lower.includes("brûlée"))) return cachedSpecials.cremeBrulee || "";
+          return "";
+        }
+
         function renderItems() {
           if (!activeMenu || !activeSection) return;
           const sec = MENUS[activeMenu].sections[activeSection];
@@ -2374,9 +2393,12 @@
                 `<span class="dietary-tag ${d.toLowerCase()}" title="${tagTitles[d] || d}">${tagLabels[d] || d}</span>`
               ).join("")}</div>`;
             }
+            const special = getSpecialForItem(name);
+            const specialHtml = special ? `<div class="ispecial">${esc(special)}</div>` : "";
             return `<div class="item-card" data-name="${esc(name)}">
               <div class="iname">${name}</div>
               ${priceHtml}
+              ${specialHtml}
               ${dietaryHtml}
             </div>`;
           }).join("");
@@ -2651,9 +2673,12 @@
                 `<span class="dietary-tag ${d.toLowerCase()}">${tagLabels[d] || d}</span>`
               ).join("")}</div>`;
             }
+            const special = getSpecialForItem(item.name);
+            const specialHtml = special ? `<div class="ispecial">${esc(special)}</div>` : "";
             return `<div class="search-item-card" data-name="${esc(item.name)}" data-menu="${esc(item.menu)}" data-section="${esc(item.section)}" data-sub="${esc(item.subsection || "")}">
               <div class="iname">${highlightMatch(item.name, query)}</div>
               ${priceHtml}
+              ${specialHtml}
               <div class="imeta"><span class="loc">${item.menu}</span> ${item.section}${item.subsection ? " › " + item.subsection : ""}</div>
               ${dietaryHtml}
             </div>`;
@@ -2794,6 +2819,7 @@
           bakedAlaskaNoteEl.value = data.bakedAlaska || "";
           cremeBruleeNoteEl.value = data.cremeBrulee || "";
           otherSpecialsNoteEl.value = data.otherSpecials || "";
+          renderItems();
         }
 
         async function saveSharedNote() {
@@ -2848,6 +2874,7 @@
         renderMenuTabs();
         renderSectionTabs();
         renderItems();
+        loadSharedNote();
       })();
     </script>
   </body>

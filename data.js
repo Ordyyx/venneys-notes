@@ -1205,18 +1205,6 @@ const MENUS = {
     },
     sections: {
       Desserts: {
-        "Creme Egg Brownie": {
-          price: 7.5,
-          dietary: ["Special"],
-        },
-        "Lemon Tart": {
-          price: 7.5,
-          dietary: ["Special"],
-        },
-        "Carrot Cake": {
-          price: 10.0,
-          dietary: ["Special"],
-        },
         "White Chocolate and Blueberry Blondie": {
           price: 10.0,
         },
