@@ -1205,6 +1205,9 @@ const MENUS = {
     },
     sections: {
       Desserts: {
+        "Creme Brulee": {
+          price: 10.0,
+        },
         "White Chocolate and Blueberry Blondie": {
           price: 10.0,
         },
