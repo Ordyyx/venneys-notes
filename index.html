@@ -939,6 +939,60 @@
         display: none;
       }
 
+      /* ── More dropdown ── */
+      .more-dropdown {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        z-index: 9999;
+        min-width: 160px;
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+      }
+      .more-dropdown.open {
+        display: flex;
+      }
+      .more-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-mid);
+        cursor: pointer;
+        transition: background 0.1s, color 0.1s;
+        border-bottom: 1px solid var(--border);
+      }
+      .more-dropdown-item:last-child {
+        border-bottom: none;
+      }
+      .more-dropdown-item:hover {
+        background: var(--card-hover);
+        color: var(--text);
+      }
+      .more-dropdown-item.active {
+        color: var(--gold);
+        background: var(--gold-soft);
+      }
+      .more-dropdown-item .di {
+        font-size: 1rem;
+      }
+      .more-dropdown-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        display: none;
+      }
+      .more-dropdown-backdrop.open {
+        display: block;
+      }
+
       .item-card.flash {
         animation: tapFlash 0.35s ease;
       }
@@ -1834,6 +1888,9 @@
       </div>
     </div>
 
+    <div class="more-dropdown-backdrop" id="moreBackdrop"></div>
+    <div class="more-dropdown" id="moreDropdown"></div>
+
     <script src="data.js"></script>
     <script>
       // ── Register Service Worker ──
@@ -1919,6 +1976,8 @@
         const noteAllergiesBadgeEl = $("noteAllergiesBadge");
         const allergiesOverlayEl = $("allergiesOverlay");
         const allergenGridEl = $("allergenGrid");
+        const moreDropdownEl = $("moreDropdown");
+        const moreBackdropEl = $("moreBackdrop");
 
         // ═══════ TABLE DATA HELPERS ═══════
         function getTableData(tableId) {
@@ -2282,6 +2341,8 @@
           if (e.target === confirmOverlayEl) hideConfirm();
         });
 
+        moreBackdropEl.addEventListener("click", closeMoreDropdown);
+
         // ═══════ ORDER SHEET ═══════
         function openSheet() {
           orderSheetOverlayEl.classList.add("open");
@@ -2320,11 +2381,14 @@
           const hasOtherSpecials = !!(cachedSpecials && (cachedSpecials.otherSpecials || "").trim());
           const validKeys = hasOtherSpecials ? [...keys, SPECIALS_MENU_KEY] : keys;
 
+          const hiddenKeys = keys.filter(k => !isMenuAvailable(k));
+          const activeIsHidden = hiddenKeys.includes(activeMenu);
+
           if (!activeMenu || !validKeys.includes(activeMenu)) {
             activeMenu = keys.find(k => isMenuAvailable(k)) || keys[0];
           }
 
-          menuTabsEl.innerHTML = validKeys.map(k => {
+          const visibleTabs = validKeys.map(k => {
             if (k === SPECIALS_MENU_KEY) {
               return `<div class="menu-tab${k === activeMenu ? " active" : ""}" data-k="${k}">
                 <span class="ti">✨</span>Specials
@@ -2337,16 +2401,62 @@
             </div>`;
           }).join("");
 
-          menuTabsEl.querySelectorAll(".menu-tab").forEach(t => {
+          const moreTab = hiddenKeys.length > 0
+            ? `<div class="menu-tab${activeIsHidden ? " active" : ""}" id="moreTab">
+                <span class="ti">⋯</span>More
+              </div>`
+            : "";
+
+          menuTabsEl.innerHTML = visibleTabs + moreTab;
+
+          menuTabsEl.querySelectorAll(".menu-tab:not(#moreTab)").forEach(t => {
             t.addEventListener("click", () => {
               activeMenu = t.dataset.k;
               activeSection = null;
               activeSubsection = null;
+              closeMoreDropdown();
               renderMenuTabs();
               renderSectionTabs();
               renderItems();
             });
           });
+
+          const moreTabEl = $("moreTab");
+          if (moreTabEl) {
+            moreTabEl.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const rect = moreTabEl.getBoundingClientRect();
+              moreDropdownEl.innerHTML = hiddenKeys.map(k => {
+                const m = MENUS[k];
+                return `<div class="more-dropdown-item${k === activeMenu ? " active" : ""}" data-k="${k}">
+                  <span class="di">${m.icon}</span>${k}
+                </div>`;
+              }).join("");
+              moreDropdownEl.querySelectorAll(".more-dropdown-item").forEach(item => {
+                item.addEventListener("click", () => {
+                  activeMenu = item.dataset.k;
+                  activeSection = null;
+                  activeSubsection = null;
+                  closeMoreDropdown();
+                  renderMenuTabs();
+                  renderSectionTabs();
+                  renderItems();
+                });
+              });
+              const dropW = 170;
+              let left = rect.left;
+              if (left + dropW > window.innerWidth) left = window.innerWidth - dropW - 8;
+              moreDropdownEl.style.top = (rect.bottom + 4) + "px";
+              moreDropdownEl.style.left = left + "px";
+              moreDropdownEl.classList.toggle("open");
+              moreBackdropEl.classList.toggle("open", moreDropdownEl.classList.contains("open"));
+            });
+          }
+        }
+
+        function closeMoreDropdown() {
+          moreDropdownEl.classList.remove("open");
+          moreBackdropEl.classList.remove("open");
         }
 
         function renderSectionTabs() {
